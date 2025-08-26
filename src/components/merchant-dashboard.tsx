@@ -879,13 +879,18 @@ function VerificationTab({ userProfile }: { userProfile: UserProfile }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [step, setStep] = useState<'initial' | 'verifying'>('initial');
     const confirmationResultRef = useRef<any>(null);
-    const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
+    // Use a ref to hold the RecaptchaVerifier instance.
+    // This is important to prevent re-creation on every render.
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-
+    // This ref will point to the div where the reCAPTCHA will be rendered.
+    const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
+        // This effect runs only on the client side, after the component has mounted.
+        // It initializes the RecaptchaVerifier.
         if (recaptchaContainerRef.current && !recaptchaVerifierRef.current) {
             try {
+                // Initialize it only once
                 const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
                     'size': 'normal',
                     'callback': (response: any) => {
@@ -893,18 +898,29 @@ function VerificationTab({ userProfile }: { userProfile: UserProfile }) {
                     },
                     'expired-callback': () => {
                         toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA a ekspire. Tanpri eseye ankò." });
-                        recaptchaVerifierRef.current?.clear();
+                        if (recaptchaVerifierRef.current) {
+                           recaptchaVerifierRef.current.clear();
+                        }
                     }
                 });
-                verifier.render().then((widgetId) => {
-                    if (recaptchaContainerRef.current) {
-                        recaptchaVerifierRef.current = verifier;
-                    }
+                // Render the reCAPTCHA and store the verifier instance in our ref
+                verifier.render().then(() => {
+                    recaptchaVerifierRef.current = verifier;
+                }).catch(err => {
+                    console.error("reCAPTCHA render error:", err);
+                    toast({ variant: "destructive", title: "Erè reCAPTCHA", description: "Pa t' kapab afiche widget reCAPTCHA a."});
                 });
             } catch (error) {
-                console.error("reCAPTCHA rendering error:", error);
+                console.error("Error creating RecaptchaVerifier:", error);
             }
         }
+        
+        // Cleanup function to clear the verifier when the component unmounts
+        return () => {
+            if (recaptchaVerifierRef.current) {
+                 recaptchaVerifierRef.current.clear();
+            }
+        };
     }, [toast]);
 
     const formatPhoneNumberForAuth = (phone: string) => {
@@ -946,9 +962,10 @@ function VerificationTab({ userProfile }: { userProfile: UserProfile }) {
              }
              toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: description, duration: 9000 });
              // Reset reCAPTCHA
-             recaptchaVerifierRef.current?.clear();
+             if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.clear();
+             }
              setStep('initial');
-
         } finally {
             setIsSubmitting(false);
         }
