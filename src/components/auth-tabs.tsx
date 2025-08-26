@@ -179,10 +179,7 @@ function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
                 };
             }
             
-            await setDoc(doc(db, "users", user.uid), {
-                ...userData,
-                createdAt: serverTimestamp(),
-            });
+            await setDoc(doc(db, "users", user.uid), userData);
 
             toast({ title: "Kont Kreye!", description: "Ou ka konekte kounye a." });
             onSignupSuccess();
@@ -259,7 +256,7 @@ function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
                     <FormField control={form.control} name="department" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Depatman</FormLabel>
-                            <Select onValueChange={(value) => {
+                            <Select onValuechange={(value) => {
                                 field.onChange(value);
                                 form.setValue('city', '');
                             }} defaultValue={field.value}>
@@ -420,5 +417,3 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
-
-    
