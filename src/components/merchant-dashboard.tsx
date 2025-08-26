@@ -124,7 +124,7 @@ const storeInfoSchema = z.object({
             ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ou dwe chwazi yon depatman.", path: ["department"] });
         }
         if (!data.city) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ou dwe chwazi yon komin.", path: ["city"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ou dwe chwazi yon vil.", path: ["city"] });
         }
     } else if (data.country && data.country !== 'Ayiti') {
          if (!data.state) {
@@ -778,11 +778,11 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
                                     name="city"
                                     render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Komin</FormLabel>
+                                        <FormLabel>Vil</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Chwazi komin ou" />
+                                                <SelectValue placeholder="Chwazi vil ou" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -879,7 +879,7 @@ function VerificationTab({ userProfile }: { userProfile: UserProfile }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [step, setStep] = useState<'initial' | 'verifying'>('initial');
     const confirmationResultRef = useRef<any>(null);
-    const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+    const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
 
@@ -894,11 +894,12 @@ function VerificationTab({ userProfile }: { userProfile: UserProfile }) {
                     'expired-callback': () => {
                         toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA a ekspire. Tanpri eseye ankò." });
                         recaptchaVerifierRef.current?.clear();
-                        recaptchaVerifierRef.current = null;
                     }
                 });
-                verifier.render().then(() => {
-                    recaptchaVerifierRef.current = verifier;
+                verifier.render().then((widgetId) => {
+                    if (recaptchaContainerRef.current) {
+                        recaptchaVerifierRef.current = verifier;
+                    }
                 });
             } catch (error) {
                 console.error("reCAPTCHA rendering error:", error);
@@ -946,7 +947,6 @@ function VerificationTab({ userProfile }: { userProfile: UserProfile }) {
              toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: description, duration: 9000 });
              // Reset reCAPTCHA
              recaptchaVerifierRef.current?.clear();
-             recaptchaVerifierRef.current = null;
              setStep('initial');
 
         } finally {
@@ -1098,3 +1098,5 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
     </div>
   )
 }
+
+    

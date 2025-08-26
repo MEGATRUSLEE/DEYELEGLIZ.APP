@@ -84,7 +84,7 @@ const signupSchema = z.object({
 }).superRefine((data, ctx) => {
     if (data.country === 'Ayiti') {
         if (!data.department) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ou dwe chwazi yon depatman.", path: ["department"] });
-        if (!data.city) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ou dwe chwazi yon komin.", path: ["city"] });
+        if (!data.city) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ou dwe chwazi yon vil.", path: ["city"] });
     } else if (data.country && data.country !== 'Ayiti') {
         if (!data.state) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Eta/Pwovens obligatwa.", path: ["state"] });
         if (!data.diasporaCity) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Vil la obligatwa.", path: ["diasporaCity"] });
@@ -271,9 +271,9 @@ function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
                     {selectedDepartment && (
                         <FormField control={form.control} name="city" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Komin</FormLabel>
+                                <FormLabel>Vil</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Chwazi komin ou" /></SelectTrigger></FormControl>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Chwazi vil ou" /></SelectTrigger></FormControl>
                                 <SelectContent>
                                     {haitiGeography[selectedDepartment].map(city => (<SelectItem key={city} value={city}>{city}</SelectItem>))}
                                 </SelectContent>
@@ -417,3 +417,5 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
+
+    
