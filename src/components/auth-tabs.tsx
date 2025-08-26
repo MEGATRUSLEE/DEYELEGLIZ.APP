@@ -16,7 +16,8 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
   getDoc,
-  type User
+  type User,
+  signInWithEmailAndPassword
 } from "@/lib/firebase"
 import type { ConfirmationResult } from "firebase/auth"
 
