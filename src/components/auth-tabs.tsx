@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -148,34 +147,6 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         }
     }, [step, toast]);
     
-    const onCaptchaVerify = async (data: SignupFormValues) => {
-        setIsSubmitting(true);
-        const verifier = recaptchaVerifierRef.current;
-        if (!verifier) {
-            toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa pare. Eseye ankò." });
-            setIsSubmitting(false);
-            return;
-        }
-
-        const phoneNumber = formatPhoneNumberForAuth(data.phone);
-        try {
-            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
-            confirmationResultRef.current = confirmationResult;
-            setFormData(data);
-            setStep('otp');
-            toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
-        } catch (error) {
-            console.error("Error during signInWithPhoneNumber:", error);
-            recaptchaVerifierRef.current?.clear(); // Clear verifier for retry
-            if (recaptchaContainerRef.current) {
-                recaptchaContainerRef.current.innerHTML = ""; // Clear old recaptcha
-            }
-            toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-    
     const finalizeAccountCreation = async (user: User, data: SignupFormValues) => {
         const isVendor = data.userType === "vendor";
         const cityForProfile = data.country === 'Ayiti' ? data.city : data.diasporaCity;
@@ -235,6 +206,34 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         }
     };
     
+    const onCaptchaVerify = async (data: SignupFormValues) => {
+        setIsSubmitting(true);
+        const verifier = recaptchaVerifierRef.current;
+        if (!verifier) {
+            toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa pare. Eseye ankò." });
+            setIsSubmitting(false);
+            return;
+        }
+
+        const phoneNumber = formatPhoneNumberForAuth(data.phone);
+        try {
+            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+            confirmationResultRef.current = confirmationResult;
+            setFormData(data);
+            setStep('otp');
+            toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
+        } catch (error) {
+            console.error("Error during signInWithPhoneNumber:", error);
+            recaptchaVerifierRef.current?.clear(); // Clear verifier for retry
+            if (recaptchaContainerRef.current) {
+                recaptchaContainerRef.current.innerHTML = ""; // Clear old recaptcha
+            }
+            toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     if (step === 'otp') {
         return (
             <div className="space-y-4">
