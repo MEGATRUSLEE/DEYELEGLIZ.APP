@@ -75,8 +75,8 @@ const signupSchema = z.object({
   email: z.string().email("Adrès imèl la pa valid.").optional().or(z.literal('')),
   phone: z.string().min(8, "Nimewo telefòn pa valid."),
   country: z.string().min(1, "Ou dwe chwazi peyi w."),
-  department: z.string(),
-  city: z.string(),
+  department: z.string().optional(),
+  city: z.string().optional(),
   state: z.string().optional(),
   diasporaCity: z.string().optional(),
   // Vendor specific fields
@@ -340,7 +340,7 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                 </Button>
             </form>
         </Form>
-    )
+    );
 }
 
 function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {

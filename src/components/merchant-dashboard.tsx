@@ -894,10 +894,10 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
         return (
              <Tabs defaultValue="products" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="products"><Package className="mr-2 h-4 w-4" /> Pwodwi</TabsTrigger>
-                    <TabsTrigger value="offers"><HandCoins className="mr-2 h-4 w-4" /> Òf Resevwa</TabsTrigger>
-                    <TabsTrigger value="profile"><Store className="mr-2 h-4 w-4" /> Pwofil Biznis</TabsTrigger>
-                    <TabsTrigger value="analytics"><BarChart2 className="mr-2 h-4 w-4" /> Estatistik</TabsTrigger>
+                    <TabsTrigger value="products"><Package className="h-5 w-5" /></TabsTrigger>
+                    <TabsTrigger value="offers"><HandCoins className="h-5 w-5" /></TabsTrigger>
+                    <TabsTrigger value="profile"><Store className="h-5 w-5" /></TabsTrigger>
+                    <TabsTrigger value="analytics"><BarChart2 className="h-5 w-5" /></TabsTrigger>
                 </TabsList>
                 <TabsContent value="products" className="mt-4">
                     <MyProductsTab userProfile={userProfile} />
@@ -947,5 +947,3 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
     </div>
   )
 }
-
-    
