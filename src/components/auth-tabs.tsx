@@ -72,8 +72,8 @@ const signupSchema = z.object({
   phone: z.string().min(8, "Nimewo telefòn pa valid."),
   password: z.string().min(6, "Modpas la dwe gen omwen 6 karaktè."),
   country: z.string().min(1, "Ou dwe chwazi peyi w."),
-  department: z.string().optional(),
-  city: z.string().optional(),
+  department: z.string(),
+  city: z.string(),
   state: z.string().optional(),
   diasporaCity: z.string().optional(),
   zipCode: z.string().optional(),
@@ -117,7 +117,7 @@ function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const form = useForm<SignupFormValues>({
         resolver: zodResolver(signupSchema),
-        defaultValues: { userType: "buyer", name: "", email: "", phone: "", password: "", country: "" }
+        defaultValues: { userType: "buyer", name: "", email: "", phone: "", password: "", country: "", department: "", city: "" }
     });
     const selectedCountry = form.watch("country");
     const selectedDepartment = form.watch("department") as Department | undefined;
@@ -417,5 +417,3 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
-
-    
