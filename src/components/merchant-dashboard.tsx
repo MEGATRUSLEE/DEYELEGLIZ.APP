@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { auth, db, storage, type User, RecaptchaVerifier, signInWithPhoneNumber, updateProfile, collection, addDoc, serverTimestamp, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy, type Timestamp } from "@/lib/firebase"
+import { auth, db, storage, collection, addDoc, serverTimestamp, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy, type Timestamp } from "@/lib/firebase"
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"
 import Image from "next/image"
 import Link from "next/link"
@@ -401,7 +401,7 @@ function MyProductsTab({ userProfile }: { userProfile: UserProfile }) {
         <div className="space-y-4">
              <Dialog open={addProductOpen} onOpenChange={setAddProductOpen}>
                 <DialogTrigger asChild>
-                <Button size="sm" disabled={userProfile.vendorApplication?.status !== 'approved'} className="w-full">
+                <Button size="sm" className="w-full">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Ajoute Pwodwi
                 </Button>
@@ -873,180 +873,12 @@ function AnalyticsTab({ userProfile }: { userProfile: UserProfile }) {
     )
 }
 
-function VerificationTab({ userProfile }: { userProfile: UserProfile }) {
-    const { toast } = useToast();
-    const [otp, setOtp] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [step, setStep] = useState<'initial' | 'verifying'>('initial');
-    const confirmationResultRef = useRef<any>(null);
-    // Use a ref to hold the RecaptchaVerifier instance.
-    // This is important to prevent re-creation on every render.
-    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-    // This ref will point to the div where the reCAPTCHA will be rendered.
-    const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        // This effect runs only on the client side, after the component has mounted.
-        // It initializes the RecaptchaVerifier.
-        if (recaptchaContainerRef.current && !recaptchaVerifierRef.current) {
-            try {
-                // Initialize it only once
-                const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-                    'size': 'normal',
-                    'callback': (response: any) => {
-                        toast({ title: "reCAPTCHA Konplete", description: "Kounye a ou ka klike sou 'Voye Kòd Verifikasyon an'." });
-                    },
-                    'expired-callback': () => {
-                        toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA a ekspire. Tanpri eseye ankò." });
-                        if (recaptchaVerifierRef.current) {
-                           recaptchaVerifierRef.current.clear();
-                        }
-                    }
-                });
-                // Render the reCAPTCHA and store the verifier instance in our ref
-                verifier.render().then(() => {
-                    recaptchaVerifierRef.current = verifier;
-                }).catch(err => {
-                    console.error("reCAPTCHA render error:", err);
-                    toast({ variant: "destructive", title: "Erè reCAPTCHA", description: "Pa t' kapab afiche widget reCAPTCHA a."});
-                });
-            } catch (error) {
-                console.error("Error creating RecaptchaVerifier:", error);
-            }
-        }
-        
-        // Cleanup function to clear the verifier when the component unmounts
-        return () => {
-            if (recaptchaVerifierRef.current) {
-                 recaptchaVerifierRef.current.clear();
-            }
-        };
-    }, [toast]);
-
-    const formatPhoneNumberForAuth = (phone: string) => {
-        let cleaned = phone.replace(/\D/g, '');
-        if (cleaned.length === 8 && !cleaned.startsWith('509')) {
-            return `+509${cleaned}`;
-        }
-        if (!cleaned.startsWith('+')) {
-            return `+${cleaned}`;
-        }
-        return cleaned;
-    };
-
-    const handleSendCode = async () => {
-        setIsSubmitting(true);
-        const phoneNumber = formatPhoneNumberForAuth(userProfile.phone);
-        const verifier = recaptchaVerifierRef.current;
-
-        if (!verifier) {
-             toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa t kapab jwenn. Tanpri rafrechi paj la." });
-             setIsSubmitting(false);
-             return;
-        }
-        
-        try {
-            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
-            confirmationResultRef.current = confirmationResult;
-            setStep('verifying');
-            toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
-        } catch (error: any) {
-             console.error("Error during signInWithPhoneNumber:", error);
-             let description = "Nou pa t kapab voye kòd la. Eseye ankò."
-             if (error.code === 'auth/invalid-phone-number') {
-                 description = `Nimewo telefòn sa a (${phoneNumber}) pa valid. Asire w li kòrèk e nan fòma entènasyonal (+509...).`
-             } else if (error.code === 'auth/too-many-requests') {
-                 description = "Ou voye twòp demann. Tanpri eseye ankò pi ta."
-             } else if (error.code === 'auth/network-request-failed') {
-                 description = "Erè rezo. Tanpri tcheke koneksyon entènèt ou epi eseye ankò."
-             }
-             toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: description, duration: 9000 });
-             // Reset reCAPTCHA
-             if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.clear();
-             }
-             setStep('initial');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-    
-    const handleVerifyCode = async () => {
-        if (!otp || !confirmationResultRef.current) return;
-        setIsSubmitting(true);
-        try {
-            await confirmationResultRef.current.confirm(otp);
-            const userRef = doc(db, "users", userProfile.uid);
-            await updateDoc(userRef, {
-                "vendorApplication.status": "approved",
-                phoneVerified: true
-            });
-            toast({ title: "Verifikasyon reyisi!", description: "Kont ou an verifye. Ou ka kòmanse vann kounye a." });
-            setStep('initial'); // Reset for UI consistency
-        } catch (error) {
-            toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <ShieldQuestion className="text-amber-500" />
-                    Verifye Kont ou
-                </CardTitle>
-                 <CardDescription>
-                    {step === 'initial'
-                        ? "Pou w ka kòmanse vann, verifye nimewo telefòn ou. Konplete reCAPTCHA ki anba a, epi klike sou bouton an pou n voye yon kòd SMS ba ou."
-                        : `Nou voye yon kòd 6 chif sou telefòn ou (${userProfile.phone}). Tanpri antre l anba a.`
-                    }
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 flex flex-col items-center">
-                
-                {step === 'initial' && (
-                    <>
-                        <div id="recaptcha-container" ref={recaptchaContainerRef} className="my-4"></div>
-                        <Button onClick={handleSendCode} disabled={isSubmitting} className="w-full">
-                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                            {isSubmitting ? 'Ap tann...' : 'Voye Kòd Verifikasyon an'}
-                        </Button>
-                    </>
-                )}
-                
-                {step === 'verifying' && (
-                    <div className="space-y-4 w-full">
-                        <Input
-                            type="tel"
-                            placeholder="Antre kòd 6 chif la"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
-                            maxLength={6}
-                            className="text-center tracking-widest"
-                        />
-                        <Button onClick={handleVerifyCode} disabled={isSubmitting || otp.length < 6} className="w-full">
-                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
-                            {isSubmitting ? 'Ap verifye...' : 'Verifye'}
-                        </Button>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
-    );
-}
-
-
 
 // Main Dashboard Component
 export function MerchantDashboard({ userProfile, userRequests, onLogout }: { userProfile: UserProfile, userRequests: Request[], onLogout: () => void }) {
     const verificationStatus = userProfile.vendorApplication?.status;
 
     const renderMainContent = () => {
-        if (verificationStatus === 'pending' || !userProfile.phoneVerified) {
-            return <VerificationTab userProfile={userProfile} />;
-        }
         if (verificationStatus === 'rejected') {
             return (
                  <div className="flex items-center gap-3 rounded-lg border-l-4 border-red-500 bg-red-50 p-4 text-red-800">
@@ -1058,7 +890,7 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
                 </div>
             )
         }
-        // If approved
+        
         return (
              <Tabs defaultValue="products" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
