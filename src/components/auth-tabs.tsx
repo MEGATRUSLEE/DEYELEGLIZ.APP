@@ -112,7 +112,7 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 
-function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
+function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { toast } = useToast()
     const [isSubmitting, setIsSubmitting] = useState(false);
     const form = useForm<SignupFormValues>({
@@ -179,9 +179,12 @@ function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
             }
             
             await setDoc(doc(db, "users", user.uid), userData);
-
-            toast({ title: "Kont Kreye!", description: "Ou ka konekte kounye a." });
-            onSignupSuccess();
+            
+            // Auto-login the user after successful signup
+            await signInWithEmailAndPassword(auth, authEmail, data.password);
+            
+            toast({ title: "Kont Kreye!", description: "Byenvini! Ou konekte kounye a." });
+            onLoginSuccess();
 
         } catch (error: any) {
             console.error("Signup error:", error);
@@ -378,11 +381,6 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const [activeTab, setActiveTab] = useState("login");
 
-  const handleSignupSuccess = () => {
-    setActiveTab("login"); 
-    // This will switch the tab to login, so the user sees the login form after a successful signup.
-  }
-
   return (
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
@@ -408,7 +406,7 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                     <CardDescription>Kreye yon kont pou kòmanse achte oswa vann.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <SignupForm onSignupSuccess={handleSignupSuccess}/>
+                    <SignupForm onLoginSuccess={onLoginSuccess}/>
                 </CardContent>
                 </Card>
             </TabsContent>
@@ -416,5 +414,3 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
-
-    

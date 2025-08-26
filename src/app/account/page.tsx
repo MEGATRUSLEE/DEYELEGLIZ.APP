@@ -2,6 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db, onSnapshot, doc, Timestamp, collection, query, where, orderBy } from "@/lib/firebase"
 import { Loader2, LogOut, CheckCircle2, AlertCircle, Clock } from "lucide-react"
@@ -188,7 +189,7 @@ export default function AccountPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isProfileLoading, setProfileLoading] = useState(true);
   const [userRequests, setUserRequests] = useState<Request[]>([]);
-
+  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -234,8 +235,8 @@ export default function AccountPage() {
   }
 
   const handleLoginSuccess = () => {
-    setUserProfile(null);
-    setProfileLoading(true);
+    // Force a re-render and re-fetch of the server component data
+    router.refresh();
   }
   
   if (loading || isProfileLoading) {
