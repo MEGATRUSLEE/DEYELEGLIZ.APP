@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -123,7 +124,6 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const selectedCountry = form.watch("country");
     const selectedDepartment = form.watch("department") as Department | undefined;
     const userType = form.watch("userType");
-
 
     const formatPhoneNumberForAuth = (phone: string) => {
         let cleaned = phone.replace(/\D/g, '');
@@ -501,3 +501,5 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
+
+    
