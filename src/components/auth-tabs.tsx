@@ -256,7 +256,7 @@ function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
                     <FormField control={form.control} name="department" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Depatman</FormLabel>
-                            <Select onValuechange={(value) => {
+                            <Select onValueChange={(value) => {
                                 field.onChange(value);
                                 form.setValue('city', '');
                             }} defaultValue={field.value}>
