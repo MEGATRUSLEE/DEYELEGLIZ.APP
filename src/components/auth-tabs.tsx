@@ -126,8 +126,8 @@ function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
     const handleSignupSubmit = async (data: SignupFormValues) => {
         setIsSubmitting(true);
         const isVendor = data.userType === "vendor";
-
         const sanitizedPhone = data.phone.replace(/\D/g, '');
+
         if (sanitizedPhone.length < 8) {
             toast({ variant: "destructive", title: "Erè Enskripsyon", description: "Nimewo telefòn lan pa valid." });
             setIsSubmitting(false);
@@ -152,7 +152,6 @@ function SignupForm({ onSignupSuccess }: { onSignupSuccess: () => void }) {
                 city: cityForProfile,
                 isVendor: isVendor,
                 createdAt: serverTimestamp() as Timestamp,
-                phoneVerified: false,
             };
 
             if (isVendor) {
@@ -417,3 +416,5 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
+
+    
