@@ -125,13 +125,6 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const selectedDepartment = form.watch("department") as Department | undefined;
     const userType = form.watch("userType");
 
-    const formatPhoneNumberForAuth = (phone: string) => {
-        let cleaned = phone.replace(/\D/g, '');
-        if (cleaned.length === 8 && !cleaned.startsWith('509')) return `+509${cleaned}`;
-        if (!cleaned.startsWith('+')) return `+${cleaned}`;
-        return cleaned;
-    };
-
     useEffect(() => {
         if (step === 'form' && recaptchaContainerRef.current && !recaptchaVerifierRef.current) {
             try {
@@ -147,6 +140,13 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         }
     }, [step, toast]);
     
+    const formatPhoneNumberForAuth = (phone: string) => {
+        let cleaned = phone.replace(/\D/g, '');
+        if (cleaned.length === 8 && !cleaned.startsWith('509')) return `+509${cleaned}`;
+        if (!cleaned.startsWith('+')) return `+${cleaned}`;
+        return cleaned;
+    };
+
     const finalizeAccountCreation = async (user: User, data: SignupFormValues) => {
         const isVendor = data.userType === "vendor";
         const cityForProfile = data.country === 'Ayiti' ? data.city : data.diasporaCity;
