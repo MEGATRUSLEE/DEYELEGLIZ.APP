@@ -57,6 +57,7 @@ export default function RootLayout({
           poppins.variable
         )}
       >
+        <div id="recaptcha-container"></div>
         <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background shadow-lg">
           <main className="flex-1 pb-20">{children}</main>
           <BottomNav />

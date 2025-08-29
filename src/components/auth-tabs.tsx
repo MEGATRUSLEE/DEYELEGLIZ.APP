@@ -424,8 +424,7 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
   useEffect(() => {
     // This effect will run once when the component mounts
-    if (!auth) return;
-    if (appVerifier) return;
+    if (!auth || appVerifier) return;
     
     try {
         const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -442,12 +441,16 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         console.error("Error setting up RecaptchaVerifier", error);
         toast({ variant: "destructive", title: "Erè Sekirite", description: "Pa t kapab inisyalize reCAPTCHA. Rafrechi paj la."});
     }
-  }, [toast, appVerifier]);
+    
+    // Cleanup function to avoid issues on unmount
+    return () => {
+        appVerifier?.clear();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
-        {/* This container is essential for the invisible reCAPTCHA to work */}
-        <div id="recaptcha-container"></div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Konekte</TabsTrigger>
@@ -479,5 +482,3 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
-
-    
