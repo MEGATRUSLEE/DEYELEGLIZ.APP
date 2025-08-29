@@ -15,11 +15,10 @@ import {
   Timestamp,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  getDoc,
   type User,
-  signInWithEmailAndPassword
+  type ConfirmationResult
 } from "@/lib/firebase"
-import type { ConfirmationResult } from "firebase/auth"
+
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -176,17 +175,20 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
     const handleVerifyOtp = async () => {
         if (!otp || !confirmationResultRef.current || !formData) return;
         setIsSubmitting(true);
-        try {
-            const result = await confirmationResultRef.current.confirm(otp);
-            const user = result.user;
-            await finalizeAccountCreation(user, formData);
-            toast({ title: "Kont Kreye!", description: "Byenvini! Ou konekte kounye a." });
-            onLoginSuccess();
-        } catch (error) {
-            toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
-        } finally {
-            setIsSubmitting(false);
-        }
+        
+        confirmationResultRef.current.confirm(otp)
+            .then(async (result) => {
+                const user = result.user;
+                await finalizeAccountCreation(user, formData);
+                toast({ title: "Kont Kreye!", description: "Byenvini! Ou konekte kounye a." });
+                onLoginSuccess();
+            })
+            .catch((error) => {
+                 toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
     
     const onCaptchaVerify = async (data: SignupFormValues) => {
@@ -197,18 +199,20 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
         setIsSubmitting(true);
         
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
-        try {
-            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-            confirmationResultRef.current = confirmationResult;
-            setFormData(data);
-            setStep('otp');
-            toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
-        } catch (error) {
-            console.error("Error during signInWithPhoneNumber:", error);
-            toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-        } finally {
-            setIsSubmitting(false);
-        }
+        signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+            .then((confirmationResult) => {
+                confirmationResultRef.current = confirmationResult;
+                setFormData(data);
+                setStep('otp');
+                toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
+            })
+            .catch ((error) => {
+                console.error("Error during signInWithPhoneNumber:", error);
+                toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
 
     if (step === 'otp') {
@@ -350,31 +354,36 @@ function LoginForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void
         setIsSubmitting(true);
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
         
-        try {
-            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-            confirmationResultRef.current = confirmationResult;
-            setStep('otp');
-            toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
-        } catch (error: any) {
-            console.error("Login error (send code):", error);
-            toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-        } finally {
-            setIsSubmitting(false);
-        }
+        signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+            .then((confirmationResult) => {
+                confirmationResultRef.current = confirmationResult;
+                setStep('otp');
+                toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
+            })
+            .catch((error: any) => {
+                console.error("Login error (send code):", error);
+                toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
 
     const handleVerifyOtp = async () => {
         if (!otp || !confirmationResultRef.current) return;
         setIsSubmitting(true);
-        try {
-            await confirmationResultRef.current.confirm(otp);
-            toast({ title: "Konekte!", description: "Ou konekte avèk siksè." });
-            onLoginSuccess();
-        } catch (error) {
-            toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
-        } finally {
-            setIsSubmitting(false);
-        }
+        
+        confirmationResultRef.current.confirm(otp)
+            .then((result) => {
+                toast({ title: "Konekte!", description: "Ou konekte avèk siksè." });
+                onLoginSuccess();
+            })
+            .catch((error) => {
+                toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
     
     if (step === 'otp') {
@@ -453,7 +462,7 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
         {/* This container is essential for the invisible reCAPTCHA to work */}
         <div id="recaptcha-container"></div>
-        <Tabs value={activeTab} onValueValueChange={setActiveTab} className="w-full max-w-md">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Konekte</TabsTrigger>
                 <TabsTrigger value="signup">Enskri</TabsTrigger>
@@ -484,5 +493,3 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
-
-    
