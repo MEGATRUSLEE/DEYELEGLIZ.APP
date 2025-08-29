@@ -57,7 +57,7 @@ const haitiGeography = {
   "Lwès": ["Pòtoprens", "Kafou", "Dèlma", "Petyonvil", "Kenskòf", "Grangwav", "Tigwav", "Leyogàn", "Kabasè", "Lakayè", "Akayè"],
   "Latibonit": ["Gonayiv", "Sen Mak", "Vèrèt", "Dechalon", "Dèdin", "Lestè", "Ansagalèt"],
   "Nò": ["Okap", "Lenbe", "Pò Mago", "Akil dinò", "Plèn dinò", "Obòy", "Bastè"],
-  "Nòdès": ["Fòlibète", "Wanament", "Twou dinò", "Karis", "Valyè"],
+  "Nòdès": ["Fòliberte", "Wanament", "Twou dinò", "Karis", "Valyè"],
   "Nòdwès": ["Pòdepè", "Sen Lwi dinò", "Ansàfo", "Mòl Sen Nikola", "Latòti"],
   "Sant": ["Ench", "Mibalè", "Laskawobas", "Sèka Lasous", "Tomonn"],
   "Sid": ["Okay", "Aken", "Koto", "Pòsali", "Sen Lwi disid", "Lilavach"],
@@ -324,7 +324,7 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                 ) : selectedCountry ? (
                 <>
                     <FormField control={form.control} name="state" render={({ field }) => ( <FormItem><FormLabel>Eta / Pwovens</FormLabel><FormControl><Input placeholder="eg. Florida" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField control={form.control} name="diasporaCity" render={({ field }) => ( <FormItem><FormLabel>Vil</FormLabel><FormControl><Input placeholder="eg. Miami" {...field} /></FormControl><FormMessage /></FormMessage /></FormItem> )} />
+                    <FormField control={form.control} name="diasporaCity" render={({ field }) => ( <FormItem><FormLabel>Vil</FormLabel><FormControl><Input placeholder="eg. Miami" {...field} /></FormControl><FormMessage /></FormItem> )} />
                 </>
                 ) : null}
 
@@ -334,7 +334,7 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                         <p className="font-semibold text-center">Enfòmasyon sou Biznis ou</p>
                          <FormField control={form.control} name="businessName" render={({ field }) => ( <FormItem><FormLabel>Non Biznis ou</FormLabel><FormControl><Input placeholder="ekz. Boulangerie St-Marc" {...field} /></FormControl><FormMessage /></FormItem> )}/>
                          <FormField control={form.control} name="businessAddress" render={({ field }) => ( <FormItem><FormLabel>Adrès Biznis ou</FormLabel><FormControl><Input placeholder="Nimewo, Non lari a, Vil" {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                        <FormField control={form.control} name="businessPhone" render={({ field }) => ( <FormItem><FormLabel>Telefòn Biznis ou</FormLabel><FormControl><Input type="tel" placeholder="+509 XX XX XX XX" {...field} /></FormControl><FormMessage /></FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="businessPhone" render={({ field }) => ( <FormItem><FormLabel>Telefòn Biznis ou</FormLabel><FormControl><Input type="tel" placeholder="+509 XX XX XX XX" {...field} /></FormControl><FormMessage /></FormItem> )}/>
                     </>
                 )}
 
@@ -501,5 +501,3 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
-
-    
