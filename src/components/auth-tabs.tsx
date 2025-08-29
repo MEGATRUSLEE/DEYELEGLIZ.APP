@@ -430,7 +430,7 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
             'size': 'invisible',
             'callback': (response: any) => {
-                // reCAPTCHA solved.
+                // reCAPTCHA solved, allow signInWithPhoneNumber.
             },
             'expired-callback': () => {
                 toast({ variant: "destructive", title: "Sekirite Ekspire", description: "Tanpri eseye ankò."});
