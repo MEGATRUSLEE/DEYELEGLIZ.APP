@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -150,7 +150,7 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
         if (isVendor) {
             const now = new Date();
             const trialStart = Timestamp.fromDate(now);
-            const trialExpiration = Timestamp.fromDate(new Date(new Date().setDate(now.getDate() + 30)));
+            const trialExpiration = Timestamp.fromDate(new Date(now.setMonth(now.getMonth() + 1))); // Corrected 30 days trial
             userData.vendorApplication = {
                 businessName: data.businessName || "",
                 address: data.businessAddress || "",
@@ -315,7 +315,7 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
                     </>
                 )}
 
-                <Button type="submit" disabled={isSubmitting} className="w-full">
+                <Button type="submit" disabled={isSubmitting || !appVerifier} className="w-full">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Voye Kòd Verifikasyon an
                 </Button>
@@ -406,7 +406,7 @@ function LoginForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void
                 <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem><FormLabel>Nimewo Telefòn</FormLabel><FormControl><Input placeholder="+509 XX XX XX XX" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
-                <Button type="submit" disabled={isSubmitting} className="w-full">
+                <Button type="submit" disabled={isSubmitting || !appVerifier} className="w-full">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <Send className="mr-2 h-4 w-4" />
                     Voye Kòd Koneksyon
@@ -424,7 +424,10 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
   useEffect(() => {
     // This effect will run once when the component mounts
-    if (!auth || appVerifier) return;
+    if (!auth) return;
+
+    // To avoid creating multiple verifiers
+    if (appVerifier) return;
     
     try {
         const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -442,7 +445,6 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         toast({ variant: "destructive", title: "Erè Sekirite", description: "Pa t kapab inisyalize reCAPTCHA. Rafrechi paj la."});
     }
     
-    // Cleanup function to avoid issues on unmount
     return () => {
         appVerifier?.clear();
     };
@@ -482,3 +484,5 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
+
+    
