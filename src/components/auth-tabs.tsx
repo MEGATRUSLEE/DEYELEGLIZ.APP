@@ -176,19 +176,17 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
         if (!otp || !confirmationResultRef.current || !formData) return;
         setIsSubmitting(true);
         
-        confirmationResultRef.current.confirm(otp)
-            .then(async (result) => {
-                const user = result.user;
-                await finalizeAccountCreation(user, formData);
-                toast({ title: "Kont Kreye!", description: "Byenvini! Ou konekte kounye a." });
-                onLoginSuccess();
-            })
-            .catch((error) => {
-                 toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
-            })
-            .finally(() => {
-                setIsSubmitting(false);
-            });
+        try {
+            const result = await confirmationResultRef.current.confirm(otp);
+            const user = result.user;
+            await finalizeAccountCreation(user, formData);
+            toast({ title: "Kont Kreye!", description: "Byenvini! Ou konekte kounye a." });
+            onLoginSuccess();
+        } catch (error) {
+            toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
     
     const onCaptchaVerify = async (data: SignupFormValues) => {
@@ -199,20 +197,19 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
         setIsSubmitting(true);
         
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
-        signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-            .then((confirmationResult) => {
-                confirmationResultRef.current = confirmationResult;
-                setFormData(data);
-                setStep('otp');
-                toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
-            })
-            .catch ((error) => {
-                console.error("Error during signInWithPhoneNumber:", error);
-                toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-            })
-            .finally(() => {
-                setIsSubmitting(false);
-            });
+
+        try {
+            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            confirmationResultRef.current = confirmationResult;
+            setFormData(data);
+            setStep('otp');
+            toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
+        } catch (error) {
+            console.error("Error during signInWithPhoneNumber:", error);
+            toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+        } finally {
+             setIsSubmitting(false);
+        }
     };
 
     if (step === 'otp') {
@@ -354,36 +351,32 @@ function LoginForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void
         setIsSubmitting(true);
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
         
-        signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-            .then((confirmationResult) => {
-                confirmationResultRef.current = confirmationResult;
-                setStep('otp');
-                toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
-            })
-            .catch((error: any) => {
-                console.error("Login error (send code):", error);
-                toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-            })
-            .finally(() => {
-                setIsSubmitting(false);
-            });
+        try {
+            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            confirmationResultRef.current = confirmationResult;
+            setStep('otp');
+            toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
+        } catch (error) {
+             console.error("Login error (send code):", error);
+             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleVerifyOtp = async () => {
         if (!otp || !confirmationResultRef.current) return;
         setIsSubmitting(true);
         
-        confirmationResultRef.current.confirm(otp)
-            .then((result) => {
-                toast({ title: "Konekte!", description: "Ou konekte avèk siksè." });
-                onLoginSuccess();
-            })
-            .catch((error) => {
-                toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
-            })
-            .finally(() => {
-                setIsSubmitting(false);
-            });
+        try {
+            await confirmationResultRef.current.confirm(otp);
+            toast({ title: "Konekte!", description: "Ou konekte avèk siksè." });
+            onLoginSuccess();
+        } catch (error) {
+             toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
+        } finally {
+             setIsSubmitting(false);
+        }
     };
     
     if (step === 'otp') {
@@ -429,18 +422,18 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const [appVerifier, setAppVerifier] = useState<RecaptchaVerifier | null>(null);
   const { toast } = useToast();
 
-  const setupRecaptcha = useCallback(() => {
-    // We only want to create one instance of the verifier
+  useEffect(() => {
+    // This effect will run once when the component mounts
+    if (!auth) return;
     if (appVerifier) return;
     
     try {
         const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
             'size': 'invisible',
             'callback': (response: any) => {
-                // reCAPTCHA solved, allow signInWithPhoneNumber.
+                // reCAPTCHA solved.
             },
             'expired-callback': () => {
-                // Response expired. Ask user to solve reCAPTCHA again.
                 toast({ variant: "destructive", title: "Sekirite Ekspire", description: "Tanpri eseye ankò."});
             }
         });
@@ -450,13 +443,6 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         toast({ variant: "destructive", title: "Erè Sekirite", description: "Pa t kapab inisyalize reCAPTCHA. Rafrechi paj la."});
     }
   }, [toast, appVerifier]);
-
-  useEffect(() => {
-    // This effect will run once when the component mounts
-    if (!appVerifier) {
-      setupRecaptcha();
-    }
-  }, [appVerifier, setupRecaptcha]);
 
   return (
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
@@ -493,3 +479,5 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
+
+    
