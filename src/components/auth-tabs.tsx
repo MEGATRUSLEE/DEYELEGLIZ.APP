@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
@@ -269,7 +268,7 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
                         <FormControl><SelectTrigger><SelectValue placeholder="Chwazi peyi kote w ap viv" /></SelectTrigger></FormControl>
                         <SelectContent>
                             <SelectItem value="Ayiti">Ayiti</SelectItem>
-                            {countries.map(country => (<SelectItem key={country.value} value={country.value}>{country.value}</SelectItem>))}
+                            {countries.map(country => (<SelectItem key={country.value} value={country.value}>{country.name}</SelectItem>))}
                         </SelectContent>
                         </Select><FormMessage />
                     </FormItem>
@@ -422,6 +421,9 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const { toast } = useToast();
 
   const setupRecaptcha = useCallback(() => {
+    // We only want to create one instance of the verifier
+    if (appVerifier) return;
+    
     try {
         const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
             'size': 'invisible',
@@ -438,9 +440,10 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         console.error("Error setting up RecaptchaVerifier", error);
         toast({ variant: "destructive", title: "Erè Sekirite", description: "Pa t kapab inisyalize reCAPTCHA. Rafrechi paj la."});
     }
-  }, [toast]);
+  }, [toast, appVerifier]);
 
   useEffect(() => {
+    // This effect will run once when the component mounts
     if (!appVerifier) {
       setupRecaptcha();
     }
@@ -448,8 +451,9 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
   return (
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
-        <div id="recaptcha-container" className="hidden"></div>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
+        {/* This container is essential for the invisible reCAPTCHA to work */}
+        <div id="recaptcha-container"></div>
+        <Tabs value={activeTab} onValueValueChange={setActiveTab} className="w-full max-w-md">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Konekte</TabsTrigger>
                 <TabsTrigger value="signup">Enskri</TabsTrigger>
@@ -480,3 +484,5 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
+
+    
