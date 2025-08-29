@@ -1,36 +1,23 @@
 
 rules_version = '2';
-
 service firebase.storage {
   match /b/{bucket}/o {
-    // Pèmèt sèlman itilizatè ki konekte yo li ak ekri
+    // Allow reads for all files by anyone (e.g. product images)
     match /{allPaths=**} {
-      allow read, write: if request.auth != null;
-    }
-
-    // Règ espesifik pou foto pwofil (logos)
-    // Sèlman itilizatè a ka ekri pwòp logo li
-    match /logos/{userId}/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Règ espesifik pou foto pwodwi
-    // Sèlman itilizatè a ka ekri foto pou pwodwi li yo
-    match /products/{userId}/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if true;
     }
     
-    // Règ espesifik pou foto demand
-    // Sèlman itilizatè a ka ekri foto pou demand li yo
-    match /requests/{userId}/{allPaths=**} {
+    // Allow writes (uploads) only for authenticated users.
+    // We restrict to a path that includes the user's ID.
+    // This ensures users can only upload to their own 'folder'.
+    match /logos/{userId}/{allPaths=**} {
         allow write: if request.auth != null && request.auth.uid == userId;
     }
-
-    // Tout moun ka li tout imaj, paske yo piblik
-    match /{allPaths=**} {
-      allow read;
+    match /products/{userId}/{allPaths=**} {
+        allow write: if request.auth != null && request.auth.uid == userId;
+    }
+     match /requests/{userId}/{allPaths=**} {
+        allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
-
-    

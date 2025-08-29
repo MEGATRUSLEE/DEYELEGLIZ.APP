@@ -1,15 +1,37 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Pwoteksyon sou done itilizatè
+    // Users: Can only read/write their own profile. Can be created by anyone authenticated.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
     }
-
-    // Tout lòt done
-    match /{document=**} {
-      allow read, write: if false;
+    
+    // Products: Anyone can read. Only authenticated vendors can create. Only owner can update/delete.
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.token.isVendor == true;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Requests: Authenticated users can read/create. Only owner can update/delete.
+    match /requests/{requestId} {
+      allow read, create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Offers: Can only be created by authenticated users. Can only be read/updated by participants.
+    match /offers/{offerId} {
+      allow read, update: if request.auth != null && (request.auth.uid == resource.data.buyerId || request.auth.uid == resource.data.productOwnerId);
+      allow create: if request.auth != null;
+    }
+    
+    // Proposals: Can only be created by vendors. Can only be read by requester.
+    match /proposals/{proposalId} {
+        allow create: if request.auth != null && request.auth.token.isVendor == true;
+        allow read: if request.auth != null && request.auth.uid == resource.data.requesterId;
     }
   }
 }
