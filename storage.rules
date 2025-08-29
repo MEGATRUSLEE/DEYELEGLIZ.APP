@@ -1,23 +1,28 @@
 
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow reads for all files by anyone (e.g. product images)
+    
+    // Allow read access to all files for anyone
     match /{allPaths=**} {
       allow read: if true;
     }
-    
-    // Allow writes (uploads) only for authenticated users.
-    // We restrict to a path that includes the user's ID.
-    // This ensures users can only upload to their own 'folder'.
-    match /logos/{userId}/{allPaths=**} {
-        allow write: if request.auth != null && request.auth.uid == userId;
+
+    // Allow write access only for authenticated users on specific paths
+    // Logos: User can only write to their own logo path
+    match /logos/{userId}/logo.png {
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Products: User can only upload images to their own product folder
     match /products/{userId}/{allPaths=**} {
-        allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Requests: Authenticated users can upload an image for their request
      match /requests/{userId}/{allPaths=**} {
-        allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
