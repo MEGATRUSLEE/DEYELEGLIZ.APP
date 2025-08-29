@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -208,6 +209,12 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     
     const onCaptchaVerify = async (data: SignupFormValues) => {
         setIsSubmitting(true);
+        
+        // Ensure verifier is initialized
+        if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, { size: 'invisible' });
+        }
+        
         const verifier = recaptchaVerifierRef.current;
         if (!verifier) {
             toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa pare. Eseye ankò." });
@@ -224,10 +231,21 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
             toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
         } catch (error) {
             console.error("Error during signInWithPhoneNumber:", error);
-            recaptchaVerifierRef.current?.clear(); // Clear verifier for retry
+            
+            // Full re-initialization of reCAPTCHA on internal error
             if (recaptchaContainerRef.current) {
-                recaptchaContainerRef.current.innerHTML = ""; // Clear old recaptcha
+                recaptchaContainerRef.current.innerHTML = "";
+                recaptchaVerifierRef.current = null; // Important: clear the reference
+                try {
+                     const newVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+                        'size': 'invisible',
+                    });
+                    recaptchaVerifierRef.current = newVerifier;
+                } catch (initError) {
+                    console.error("Failed to re-initialize RecaptchaVerifier:", initError);
+                }
             }
+
             toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
         } finally {
             setIsSubmitting(false);
@@ -369,7 +387,6 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     };
 
      useEffect(() => {
-        // Use a different ID for the reCAPTCHA container to avoid conflicts
         if (step === 'phone' && recaptchaContainerRef.current && !recaptchaVerifierRef.current) {
              try {
                 const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
@@ -386,6 +403,11 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
     const handleSendCode = async (data: LoginFormValues) => {
         setIsSubmitting(true);
+
+        if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, { size: 'invisible' });
+        }
+        
         const verifier = recaptchaVerifierRef.current;
         if (!verifier) {
             toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa pare. Eseye ankò." });
@@ -402,10 +424,21 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
             toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
         } catch (error: any) {
             console.error("Login error (send code):", error);
-            recaptchaVerifierRef.current?.clear(); // Clear verifier for retry
+            
+            // Full re-initialization of reCAPTCHA on internal error
             if (recaptchaContainerRef.current) {
-                recaptchaContainerRef.current.innerHTML = ""; // Clear old recaptcha
+                recaptchaContainerRef.current.innerHTML = "";
+                recaptchaVerifierRef.current = null; // Important: clear the reference
+                try {
+                     const newVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+                        'size': 'invisible',
+                    });
+                    recaptchaVerifierRef.current = newVerifier;
+                } catch (initError) {
+                    console.error("Failed to re-initialize RecaptchaVerifier:", initError);
+                }
             }
+
             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
         } finally {
             setIsSubmitting(false);
@@ -501,3 +534,5 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
+
+    
