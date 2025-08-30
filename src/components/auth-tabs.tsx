@@ -150,7 +150,8 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
         if (isVendor) {
             const now = new Date();
             const trialStart = Timestamp.fromDate(now);
-            const trialExpiration = Timestamp.fromDate(new Date(now.setMonth(now.getMonth() + 1))); // Corrected 30 days trial
+            const expirationDate = new Date(now.setMonth(now.getMonth() + 1));
+            const trialExpiration = Timestamp.fromDate(expirationDate);
             userData.vendorApplication = {
                 businessName: data.businessName || "",
                 address: data.businessAddress || "",
@@ -423,33 +424,33 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // This effect will run once when the component mounts
-    if (!auth) return;
-
-    // To avoid creating multiple verifiers
-    if (appVerifier) return;
+    // This effect will run once when the component mounts and auth is available.
+    if (!auth || appVerifier) return;
     
-    try {
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': (response: any) => {
-                // reCAPTCHA solved, allow signInWithPhoneNumber.
-            },
-            'expired-callback': () => {
-                toast({ variant: "destructive", title: "Sekirite Ekspire", description: "Tanpri eseye ankò."});
-            }
-        });
-        setAppVerifier(verifier);
-    } catch(error) {
-        console.error("Error setting up RecaptchaVerifier", error);
-        toast({ variant: "destructive", title: "Erè Sekirite", description: "Pa t kapab inisyalize reCAPTCHA. Rafrechi paj la."});
-    }
+    // Using a timeout to ensure the 'recaptcha-container' div is in the DOM.
+    const timeoutId = setTimeout(() => {
+        try {
+            const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': (response: any) => {
+                    // reCAPTCHA solved, allow signInWithPhoneNumber.
+                },
+                'expired-callback': () => {
+                    toast({ variant: "destructive", title: "Sekirite Ekspire", description: "Tanpri eseye ankò."});
+                }
+            });
+            setAppVerifier(verifier);
+        } catch(error) {
+            console.error("Error setting up RecaptchaVerifier", error);
+            toast({ variant: "destructive", title: "Erè Sekirite", description: "Pa t kapab inisyalize reCAPTCHA. Rafrechi paj la."});
+        }
+    }, 100); // 100ms delay to be safe
     
     return () => {
+        clearTimeout(timeoutId);
         appVerifier?.clear();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [auth, appVerifier, toast]);
 
   return (
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
@@ -484,5 +485,3 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     </div>
   )
 }
-
-    
