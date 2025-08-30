@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -106,14 +106,15 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 
-function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void, appVerifier: RecaptchaVerifier | null }) {
+function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { toast } = useToast()
     const [step, setStep] = useState<'form' | 'otp'>('form');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<SignupFormValues | null>(null);
     const [otp, setOtp] = useState('');
     const confirmationResultRef = useRef<ConfirmationResult | null>(null);
-    
+    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+
     const form = useForm<SignupFormValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: { userType: "buyer", name: "", email: "", phone: "", country: "", department: "", city: "" }
@@ -150,8 +151,11 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
         if (isVendor) {
             const now = new Date();
             const trialStart = Timestamp.fromDate(now);
-            const expirationDate = new Date(now.setMonth(now.getMonth() + 1));
+            // Fix: setMonth returns a number, so we need to create a new date
+            const expirationDate = new Date();
+            expirationDate.setMonth(now.getMonth() + 1);
             const trialExpiration = Timestamp.fromDate(expirationDate);
+
             userData.vendorApplication = {
                 businessName: data.businessName || "",
                 address: data.businessAddress || "",
@@ -184,6 +188,7 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
             toast({ title: "Kont Kreye!", description: "Byenvini! Ou konekte kounye a." });
             onLoginSuccess();
         } catch (error) {
+            console.error("OTP confirmation error:", error)
             toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
         } finally {
             setIsSubmitting(false);
@@ -191,23 +196,38 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
     };
     
     const onCaptchaVerify = async (data: SignupFormValues) => {
-        if (!appVerifier) {
-             toast({ variant: "destructive", title: "Erè reCAPTCHA", description: "Verifikatè sekirite a pa pare. Rafrechi paj la epi eseye ankò." });
-             return;
-        }
         setIsSubmitting(true);
-        
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
 
         try {
-            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            // Ensure verifier is only created once
+            if (!recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
+                    'size': 'normal', // Use 'normal' for visible, or 'invisible'
+                    'callback': () => {
+                        // reCAPTCHA solved, allow signInWithPhoneNumber.
+                    },
+                });
+            }
+            
+            const verifier = recaptchaVerifierRef.current;
+            
+            // Render reCAPTCHA if it is not already rendered.
+            if(verifier.widgetId === undefined || verifier.widgetId === null) {
+                await verifier.render();
+            }
+
+            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
             confirmationResultRef.current = confirmationResult;
             setFormData(data);
             setStep('otp');
             toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
         } catch (error) {
             console.error("Error during signInWithPhoneNumber:", error);
-            toast({ variant: "destructive", title: "Erè Lè n t ap Voye Kòd la", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+            toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+             if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.clear();
+            }
         } finally {
              setIsSubmitting(false);
         }
@@ -315,8 +335,10 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
                         <FormField control={form.control} name="businessPhone" render={({ field }) => ( <FormItem><FormLabel>Telefòn Biznis ou</FormLabel><FormControl><Input type="tel" placeholder="+509 XX XX XX XX" {...field} /></FormControl><FormMessage /></FormItem> )}/>
                     </>
                 )}
+                
+                <div id="recaptcha-container-signup" className="flex justify-center"></div>
 
-                <Button type="submit" disabled={isSubmitting || !appVerifier} className="w-full">
+                <Button type="submit" disabled={isSubmitting} className="w-full">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Voye Kòd Verifikasyon an
                 </Button>
@@ -325,12 +347,13 @@ function SignupForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => voi
     );
 }
 
-function LoginForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void, appVerifier: RecaptchaVerifier | null }) {
+function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { toast } = useToast()
     const [step, setStep] = useState<'phone' | 'otp'>('phone');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [otp, setOtp] = useState('');
     const confirmationResultRef = useRef<ConfirmationResult | null>(null);
+    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -345,21 +368,33 @@ function LoginForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void
     };
 
     const handleSendCode = async (data: LoginFormValues) => {
-        if (!appVerifier) {
-             toast({ variant: "destructive", title: "Erè reCAPTCHA", description: "Verifikatè sekirite a pa pare. Rafrechi paj la epi eseye ankò." });
-             return;
-        }
         setIsSubmitting(true);
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
         
         try {
-            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            if (!recaptchaVerifierRef.current) {
+                 recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
+                    'size': 'normal',
+                    'callback': () => {},
+                });
+            }
+           
+            const verifier = recaptchaVerifierRef.current;
+            
+            if (verifier.widgetId === undefined || verifier.widgetId === null) {
+                await verifier.render();
+            }
+            
+            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
             confirmationResultRef.current = confirmationResult;
             setStep('otp');
             toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
         } catch (error) {
              console.error("Login error (send code):", error);
              toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+             if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.clear();
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -374,6 +409,7 @@ function LoginForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void
             toast({ title: "Konekte!", description: "Ou konekte avèk siksè." });
             onLoginSuccess();
         } catch (error) {
+             console.error("OTP confirmation error (login):", error);
              toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
         } finally {
              setIsSubmitting(false);
@@ -407,7 +443,8 @@ function LoginForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void
                 <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem><FormLabel>Nimewo Telefòn</FormLabel><FormControl><Input placeholder="+509 XX XX XX XX" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
-                <Button type="submit" disabled={isSubmitting || !appVerifier} className="w-full">
+                 <div id="recaptcha-container-login" className="flex justify-center"></div>
+                <Button type="submit" disabled={isSubmitting} className="w-full">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <Send className="mr-2 h-4 w-4" />
                     Voye Kòd Koneksyon
@@ -420,38 +457,7 @@ function LoginForm({ onLoginSuccess, appVerifier }: { onLoginSuccess: () => void
 
 export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const [activeTab, setActiveTab] = useState("login");
-  const [appVerifier, setAppVerifier] = useState<RecaptchaVerifier | null>(null);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // This effect will run once when the component mounts and auth is available.
-    if (!auth || appVerifier) return;
-    
-    // Using a timeout to ensure the 'recaptcha-container' div is in the DOM.
-    const timeoutId = setTimeout(() => {
-        try {
-            const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'invisible',
-                'callback': (response: any) => {
-                    // reCAPTCHA solved, allow signInWithPhoneNumber.
-                },
-                'expired-callback': () => {
-                    toast({ variant: "destructive", title: "Sekirite Ekspire", description: "Tanpri eseye ankò."});
-                }
-            });
-            setAppVerifier(verifier);
-        } catch(error) {
-            console.error("Error setting up RecaptchaVerifier", error);
-            toast({ variant: "destructive", title: "Erè Sekirite", description: "Pa t kapab inisyalize reCAPTCHA. Rafrechi paj la."});
-        }
-    }, 100); // 100ms delay to be safe
-    
-    return () => {
-        clearTimeout(timeoutId);
-        appVerifier?.clear();
-    };
-  }, [auth, appVerifier, toast]);
-
+  
   return (
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
@@ -466,7 +472,7 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                     <CardDescription>Antre nimewo telefòn ou pou resevwa yon kòd koneksyon.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <LoginForm onLoginSuccess={onLoginSuccess} appVerifier={appVerifier} />
+                    <LoginForm onLoginSuccess={onLoginSuccess} />
                 </CardContent>
                 </Card>
             </TabsContent>
@@ -477,7 +483,7 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                     <CardDescription>Kreye yon kont pou kòmanse achte oswa vann.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <SignupForm onLoginSuccess={onLoginSuccess} appVerifier={appVerifier} />
+                    <SignupForm onLoginSuccess={onLoginSuccess} />
                 </CardContent>
                 </Card>
             </TabsContent>
