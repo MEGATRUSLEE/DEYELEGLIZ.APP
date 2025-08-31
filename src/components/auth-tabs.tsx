@@ -106,13 +106,15 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 
-function SignupForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, verifier: RecaptchaVerifier | null }) {
+function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { toast } = useToast()
     const [step, setStep] = useState<'form' | 'otp'>('form');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<SignupFormValues | null>(null);
     const [otp, setOtp] = useState('');
     const confirmationResultRef = useRef<ConfirmationResult | null>(null);
+    const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
     const form = useForm<SignupFormValues>({
         resolver: zodResolver(signupSchema),
@@ -128,6 +130,28 @@ function SignupForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, 
         if (!cleaned.startsWith('+')) return `+${cleaned}`;
         return cleaned;
     };
+
+    const setupRecaptcha = useCallback(() => {
+        if (recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current.clear();
+        }
+        if (recaptchaContainerRef.current) {
+            const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+                'size': 'invisible',
+                'callback': () => {
+                    // reCAPTCHA solved, allow signInWithPhoneNumber.
+                }
+            });
+            recaptchaVerifierRef.current = verifier;
+        }
+    }, []);
+
+    useEffect(() => {
+        if(step === 'form') {
+            setupRecaptcha();
+        }
+    }, [step, setupRecaptcha]);
+
 
     const finalizeAccountCreation = async (user: User, data: SignupFormValues) => {
         const isVendor = data.userType === "vendor";
@@ -150,7 +174,8 @@ function SignupForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, 
         if (isVendor) {
             const now = new Date();
             const trialStart = Timestamp.fromDate(now);
-            const expirationDate = new Date(now.setMonth(now.getMonth() + 1));
+            const expirationDate = new Date();
+            expirationDate.setMonth(now.getMonth() + 1);
             const trialExpiration = Timestamp.fromDate(expirationDate);
 
             userData.vendorApplication = {
@@ -193,15 +218,15 @@ function SignupForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, 
     };
     
     const onCaptchaVerify = async (data: SignupFormValues) => {
-        if (!verifier) {
-            toast({ variant: "destructive", title: "Erè", description: "Verifikatè reCAPTCHA a poko pare. Eseye ankò."});
-            return;
-        }
         setIsSubmitting(true);
-        const phoneNumber = formatPhoneNumberForAuth(data.phone);
-
         try {
+            const verifier = recaptchaVerifierRef.current;
+            if (!verifier) {
+                throw new Error("RecaptchaVerifier not initialized");
+            }
+            const phoneNumber = formatPhoneNumberForAuth(data.phone);
             const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+            
             confirmationResultRef.current = confirmationResult;
             setFormData(data);
             setStep('otp');
@@ -209,6 +234,13 @@ function SignupForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, 
         } catch (error) {
             console.error("Error during signInWithPhoneNumber:", error);
             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+            if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.render().then((widgetId) => {
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset(widgetId);
+                    }
+                });
+            }
         } finally {
              setIsSubmitting(false);
         }
@@ -238,6 +270,7 @@ function SignupForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onCaptchaVerify)} className="space-y-4">
+                 <div ref={recaptchaContainerRef}></div>
                 <FormField control={form.control} name="userType" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Ki tip de kont ou vle?</FormLabel>
@@ -317,7 +350,7 @@ function SignupForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, 
                     </>
                 )}
                 
-                <Button type="submit" disabled={isSubmitting || !verifier} className="w-full">
+                <Button type="submit" disabled={isSubmitting} className="w-full">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Voye Kòd Verifikasyon an
                 </Button>
@@ -326,12 +359,14 @@ function SignupForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, 
     );
 }
 
-function LoginForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, verifier: RecaptchaVerifier | null }) {
+function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { toast } = useToast()
     const [step, setStep] = useState<'phone' | 'otp'>('phone');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [otp, setOtp] = useState('');
     const confirmationResultRef = useRef<ConfirmationResult | null>(null);
+    const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -345,22 +380,51 @@ function LoginForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, v
         return cleaned;
     };
 
-    const handleSendCode = async (data: LoginFormValues) => {
-        if (!verifier) {
-            toast({ variant: "destructive", title: "Erè", description: "Verifikatè reCAPTCHA a poko pare. Eseye ankò."});
-            return;
+     const setupRecaptcha = useCallback(() => {
+        if (recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current.clear();
         }
+        if (recaptchaContainerRef.current) {
+            const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+                'size': 'invisible',
+                'callback': () => {
+                    // reCAPTCHA solved, allow signInWithPhoneNumber.
+                }
+            });
+            recaptchaVerifierRef.current = verifier;
+        }
+    }, []);
+
+    useEffect(() => {
+       if (step === 'phone') {
+           setupRecaptcha();
+       }
+    }, [step, setupRecaptcha]);
+
+    const handleSendCode = async (data: LoginFormValues) => {
         setIsSubmitting(true);
-        const phoneNumber = formatPhoneNumberForAuth(data.phone);
-        
         try {
+            const verifier = recaptchaVerifierRef.current;
+            if (!verifier) {
+                throw new Error("RecaptchaVerifier not initialized");
+            }
+            const phoneNumber = formatPhoneNumberForAuth(data.phone);
             const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+            
             confirmationResultRef.current = confirmationResult;
             setStep('otp');
             toast({ title: "Kòd Voye!", description: `Nou voye yon kòd verifikasyon sou nimewo ${phoneNumber}.` });
+
         } catch (error) {
              console.error("Login error (send code):", error);
              toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
+             if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.render().then((widgetId) => {
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset(widgetId);
+                    }
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -406,10 +470,11 @@ function LoginForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, v
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSendCode)} className="space-y-4">
+                 <div ref={recaptchaContainerRef}></div>
                 <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem><FormLabel>Nimewo Telefòn</FormLabel><FormControl><Input placeholder="+509 XX XX XX XX" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
-                <Button type="submit" disabled={isSubmitting || !verifier} className="w-full">
+                <Button type="submit" disabled={isSubmitting} className="w-full">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <Send className="mr-2 h-4 w-4" />
                     Voye Kòd Koneksyon
@@ -422,32 +487,6 @@ function LoginForm({ onLoginSuccess, verifier }: { onLoginSuccess: () => void, v
 
 export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const [activeTab, setActiveTab] = useState("login");
-  const [verifier, setVerifier] = useState<RecaptchaVerifier | null>(null);
-
-  useEffect(() => {
-    // This effect runs once when the component mounts.
-    // It creates the RecaptchaVerifier instance and stores it in state.
-    // The empty div with id 'recaptcha-container' must be in the DOM for this to work.
-    try {
-        const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': (response: any) => {
-                // reCAPTCHA solved, allow signInWithPhoneNumber.
-            }
-        });
-        setVerifier(recaptchaVerifier);
-    } catch (error) {
-        console.error("Error creating RecaptchaVerifier:", error);
-    }
-
-    // Cleanup function to clear the verifier when the component unmounts.
-    return () => {
-        if (verifier) {
-            verifier.clear();
-        }
-    };
-    // The empty dependency array ensures this effect runs only once.
-  }, []);
   
   return (
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
@@ -463,7 +502,7 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                     <CardDescription>Antre nimewo telefòn ou pou resevwa yon kòd koneksyon.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <LoginForm onLoginSuccess={onLoginSuccess} verifier={verifier} />
+                    <LoginForm onLoginSuccess={onLoginSuccess} />
                 </CardContent>
                 </Card>
             </TabsContent>
@@ -474,7 +513,7 @@ export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                     <CardDescription>Kreye yon kont pou kòmanse achte oswa vann.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <SignupForm onLoginSuccess={onLoginSuccess} verifier={verifier} />
+                    <SignupForm onLoginSuccess={onLoginSuccess} />
                 </CardContent>
                 </Card>
             </TabsContent>
