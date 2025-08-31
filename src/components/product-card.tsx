@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import type { Product } from "@/app/market/page"
+import type { Product } from "@/lib/types"
 import { MapPin } from "lucide-react"
 
 interface ProductCardProps {

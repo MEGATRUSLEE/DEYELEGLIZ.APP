@@ -33,21 +33,7 @@ import { RequestCard } from "@/components/request-card"
 import { PlusCircle, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import type { UserProfile } from "../account/page"
-
-export interface Request {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl?: string;
-  requesterWhatsapp: string;
-  userId: string;
-  userName: string;
-  city: string;
-  country: string;
-  views?: number;
-  proposalCount?: number;
-  createdAt: any;
-}
+import type { Request } from "@/lib/types"
 
 const requestSchema = z.object({
   title: z.string().min(1, "Tit la obligatwa."),

@@ -15,7 +15,7 @@ import { Phone, Mail, Instagram, Facebook, Utensils, Brush, Shirt, Lightbulb, Gi
 import { Input } from "@/components/ui/input"
 import { WhatsAppContactButton } from "@/components/whatsapp-fab"
 import { ProductCard } from "@/components/product-card"
-import type { Product } from "@/app/market/page"
+import type { Product } from "@/lib/types"
 import {
   Accordion,
   AccordionContent,

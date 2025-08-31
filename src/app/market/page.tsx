@@ -12,23 +12,7 @@ import { ProductCard } from "@/components/product-card"
 import { Search, Car, Smartphone, Headphones, Lightbulb, Footprints, Shirt, Smile, CookingPot, Baby, Book, Bed, Wrench, Package, Gift, Utensils, Wheat, ShoppingBag, Loader2, Home, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-
-export interface Product {
-  id: string;
-  name: string;
-  price: string;
-  imageUrls: string[];
-  category: string;
-  description: string;
-  vendorName: string;
-  vendorCountry: string;
-  vendorCity: string;
-  userId: string;
-  isAvailable?: boolean;
-  views?: number;
-  quantity?: number;
-  createdAt?: any;
-}
+import type { Product } from "@/lib/types"
 
 const categories = [
     { name: "Machin", icon: Car, href: "/market?category=Machin", value: "Machin" },

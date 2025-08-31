@@ -53,7 +53,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import type { UserProfile } from "@/app/account/page"
-import type { Request } from "@/app/requests/page"
+import type { Request } from "@/lib/types"
 import { UserRequestCard } from "@/components/user-request-card"
 import { PlusCircle, Trash2, LogOut, Loader2, BarChart2, Store, Package, Power, PowerOff, Eye, AlertTriangle, Building, Upload, Send, CalendarDays, Inbox, ShieldCheck, HandCoins, Check, X, Info, ShieldQuestion } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
@@ -97,7 +97,7 @@ const haitiGeography = {
   "Lwès": ["Pòtoprens", "Kafou", "Dèlma", "Petyonvil", "Kenskòf", "Grangwav", "Tigwav", "Leyogàn", "Kabasè", "Lakayè", "Akayè"],
   "Latibonit": ["Gonayiv", "Sen Mak", "Vèrèt", "Dechalon", "Dèdin", "Lestè", "Ansagalèt"],
   "Nò": ["Okap", "Lenbe", "Pò Mago", "Akil dinò", "Plèn dinò", "Obòy", "Bastè"],
-  "Nòdès": ["Fòlibète", "Wanament", "Twou dinò", "Karis", "Valyè"],
+  "Nòdès": ["Fòliberte", "Wanament", "Twou dinò", "Karis", "Valyè"],
   "Nòdwès": ["Pòdepè", "Sen Lwi dinò", "Ansàfo", "Mòl Sen Nikola", "Latòti"],
   "Sant": ["Ench", "Mibalè", "Laskawobas", "Sèka Lasous", "Tomonn"],
   "Sid": ["Okay", "Aken", "Koto", "Pòsali", "Sen Lwi disid", "Lilavach"],

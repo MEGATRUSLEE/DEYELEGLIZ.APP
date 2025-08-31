@@ -2,16 +2,35 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read access to all files
+    // Allow public read access to all files (e.g., product images, logos)
     match /{allPaths=**} {
-      allow read;
+      allow read: if true;
     }
 
-    // Allow authenticated users to write (upload) files up to 5MB
-    // This covers product images, logos, and request photos.
-    match /{userId}/{allPaths=**} {
-        allow write: if request.auth != null && request.auth.uid == userId
-                    && request.resource.size < 5 * 1024 * 1024;
+    // Restrict write access. Only authenticated users can upload files.
+    // We also check for file size (max 4MB) and type to prevent abuse.
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isNotTooLarge() {
+      return request.resource.size < 4 * 1024 * 1024;
+    }
+
+    match /products/{userId}/{fileName} {
+      allow write: if isOwner(userId) && isImage() && isNotTooLarge();
+    }
+
+    match /requests/{userId}/{fileName} {
+       allow write: if isOwner(userId) && isImage() && isNotTooLarge();
+    }
+
+    match /logos/{userId}/{fileName} {
+       allow write: if isOwner(userId) && isImage() && isNotTooLarge();
     }
   }
 }

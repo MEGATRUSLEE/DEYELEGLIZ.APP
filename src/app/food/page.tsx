@@ -10,11 +10,8 @@ import { Input } from "@/components/ui/input"
 import { ProductCard } from "@/components/product-card"
 import { Search, Loader2, Utensils, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type { Product as BaseProduct } from "@/app/market/page";
+import type { Product } from "@/lib/types"
 
-
-// Re-define product here to avoid circular dependencies if ProductCard needs it
-export interface Product extends BaseProduct {}
 
 export default function FoodPage() {
   const [products, setProducts] = useState<Product[]>([]);

@@ -8,7 +8,7 @@ import { notFound, useRouter } from "next/navigation"
 import { ArrowLeft, MessageCircle, Loader2, Globe, Building, Eye, Power, PowerOff, Inbox, MapPin, HandCoins, ShieldCheck, CalendarDays } from "lucide-react"
 import { doc, getDoc, updateDoc, increment, addDoc, collection, serverTimestamp, type Timestamp } from "firebase/firestore"
 import { db, auth } from "@/lib/firebase" 
-import type { Product } from "../../page" 
+import type { Product } from "@/lib/types" 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {

@@ -2,40 +2,67 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Users: Users can only read and write to their own document.
-    // Anyone can create a user document (for signup).
-    match /users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null;
-    }
-
-    // Products: Publicly readable. Only the owner can create, update, delete.
-    match /products/{productId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-    }
-
-    // Requests: Publicly readable. Only authenticated users can create. Only owner can delete.
-    match /requests/{requestId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      // Allow updates for increments (views, proposalCount) by any authenticated user
-      allow update: if request.auth != null && (request.resource.data.keys().hasOnly(['views', 'proposalCount']) || request.auth.uid == resource.data.userId);
-      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+  
+    // Helpers
+    function isUserAuthenticated() {
+      return request.auth != null;
     }
     
-    // Offers: Can only be read by buyer or seller. Only buyer can create. Only seller can update status.
-    match /offers/{offerId} {
-       allow read, update, delete: if request.auth != null && (request.auth.uid == resource.data.productOwnerId || request.auth.uid == resource.data.buyerId);
-       allow create: if request.auth != null && request.auth.uid == request.resource.data.buyerId;
+    function isOwner(resourceId) {
+      return request.auth.uid == resourceId;
+    }
+    
+    // Users Collection
+    match /users/{userId} {
+      // A user can only create their own profile.
+      allow create: if isUserAuthenticated() && isOwner(userId);
+      // Only the owner can read, update, or delete their own profile.
+      allow read, update, delete: if isUserAuthenticated() && isOwner(userId);
+    }
+    
+    // Products Collection
+    match /products/{productId} {
+      // Anyone can view products.
+      allow get, list: if true;
+      // Only authenticated users can create products.
+      allow create: if isUserAuthenticated();
+      // Only the product owner can update or delete their product.
+      allow update, delete: if isUserAuthenticated() && isOwner(resource.data.userId);
+    }
+    
+    // Requests Collection
+    match /requests/{requestId} {
+      // Anyone can view requests.
+      allow get, list: if true;
+      // Only authenticated users can create a request.
+      allow create: if isUserAuthenticated();
+      // Only the request owner can update or delete, but anyone can increment views.
+      allow update: if isUserAuthenticated() && (isOwner(resource.data.userId) || request.resource.data.views == resource.data.views + 1);
+      allow delete: if isUserAuthenticated() && isOwner(resource.data.userId);
     }
 
-    // Proposals: Can only be read by requester or vendor. Only vendor can create.
+    // Offers Collection
+    match /offers/{offerId} {
+      // Anyone can read offers.
+      allow get, list: if true;
+      // Only authenticated users can create offers.
+      allow create: if isUserAuthenticated();
+      // Only the product owner can accept/reject (update) the offer.
+      allow update: if isUserAuthenticated() && isOwner(resource.data.productOwnerId);
+      // Offer can be deleted by buyer or seller
+      allow delete: if isUserAuthenticated() && (isOwner(resource.data.buyerId) || isOwner(resource.data.productOwnerId));
+    }
+    
+     // Proposals Collection (for requests)
     match /proposals/{proposalId} {
-       allow read, delete: if request.auth != null && (request.auth.uid == resource.data.requesterId || request.auth.uid == resource.data.vendorId);
-       allow create: if request.auth != null && request.auth.uid == request.resource.data.vendorId;
+        // The requester and the vendor who made the proposal can read it.
+        allow get, list: if isUserAuthenticated(); 
+        // Only authenticated vendors can create a proposal.
+        allow create: if isUserAuthenticated();
+        // Nobody can update a proposal, they should create a new one.
+        allow update: if false;
+        // The vendor who created it can delete it.
+        allow delete: if isUserAuthenticated() && isOwner(resource.data.vendorId);
     }
   }
 }
