@@ -113,7 +113,6 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const [formData, setFormData] = useState<SignupFormValues | null>(null);
     const [otp, setOtp] = useState('');
     const confirmationResultRef = useRef<ConfirmationResult | null>(null);
-    const recaptchaContainerRef = useRef<HTMLDivElement>(null);
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
     const form = useForm<SignupFormValues>({
@@ -132,17 +131,13 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     };
 
     const setupRecaptcha = useCallback(() => {
-        if (recaptchaVerifierRef.current) {
-            recaptchaVerifierRef.current.clear();
-        }
-        if (recaptchaContainerRef.current) {
-            const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        if (!recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
                 'size': 'invisible',
                 'callback': () => {
                     // reCAPTCHA solved, allow signInWithPhoneNumber.
                 }
             });
-            recaptchaVerifierRef.current = verifier;
         }
     }, []);
 
@@ -174,8 +169,7 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         if (isVendor) {
             const now = new Date();
             const trialStart = Timestamp.fromDate(now);
-            const expirationDate = new Date();
-            expirationDate.setMonth(now.getMonth() + 1);
+            const expirationDate = new Date(now.setMonth(now.getMonth() + 1));
             const trialExpiration = Timestamp.fromDate(expirationDate);
 
             userData.vendorApplication = {
@@ -234,13 +228,6 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
             console.error("Error during signInWithPhoneNumber:", error);
             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-            if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.render().then((widgetId) => {
-                    if (typeof grecaptcha !== 'undefined') {
-                        grecaptcha.reset(widgetId);
-                    }
-                });
-            }
         } finally {
              setIsSubmitting(false);
         }
@@ -270,7 +257,7 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onCaptchaVerify)} className="space-y-4">
-                 <div ref={recaptchaContainerRef}></div>
+                 <div id="recaptcha-container-signup"></div>
                 <FormField control={form.control} name="userType" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Ki tip de kont ou vle?</FormLabel>
@@ -365,7 +352,6 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [otp, setOtp] = useState('');
     const confirmationResultRef = useRef<ConfirmationResult | null>(null);
-    const recaptchaContainerRef = useRef<HTMLDivElement>(null);
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
     const form = useForm<LoginFormValues>({
@@ -381,17 +367,13 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     };
 
      const setupRecaptcha = useCallback(() => {
-        if (recaptchaVerifierRef.current) {
-            recaptchaVerifierRef.current.clear();
-        }
-        if (recaptchaContainerRef.current) {
-            const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        if (!recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
                 'size': 'invisible',
                 'callback': () => {
-                    // reCAPTCHA solved, allow signInWithPhoneNumber.
+                    // reCAPTCHA solved
                 }
             });
-            recaptchaVerifierRef.current = verifier;
         }
     }, []);
 
@@ -418,13 +400,6 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
              console.error("Login error (send code):", error);
              toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-             if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.render().then((widgetId) => {
-                    if (typeof grecaptcha !== 'undefined') {
-                        grecaptcha.reset(widgetId);
-                    }
-                });
-            }
         } finally {
             setIsSubmitting(false);
         }
@@ -470,7 +445,7 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSendCode)} className="space-y-4">
-                 <div ref={recaptchaContainerRef}></div>
+                 <div id="recaptcha-container-login"></div>
                 <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem><FormLabel>Nimewo Telefòn</FormLabel><FormControl><Input placeholder="+509 XX XX XX XX" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
