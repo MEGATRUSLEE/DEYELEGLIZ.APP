@@ -225,8 +225,12 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
             console.error("Error during signInWithPhoneNumber:", error);
             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-             if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.clear();
+             if (recaptchaVerifierRef.current && typeof recaptchaVerifierRef.current.clear === 'function') {
+                try {
+                    recaptchaVerifierRef.current.clear();
+                } catch (clearError) {
+                    console.error("Error clearing recaptcha verifier:", clearError);
+                }
             }
         } finally {
              setIsSubmitting(false);
@@ -392,8 +396,12 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
              console.error("Login error (send code):", error);
              toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-             if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.clear();
+             if (recaptchaVerifierRef.current && typeof recaptchaVerifierRef.current.clear === 'function') {
+                try {
+                    recaptchaVerifierRef.current.clear();
+                } catch (clearError) {
+                    console.error("Error clearing recaptcha verifier:", clearError);
+                }
             }
         } finally {
             setIsSubmitting(false);
