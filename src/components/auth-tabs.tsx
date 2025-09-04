@@ -123,6 +123,19 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const selectedDepartment = form.watch("department") as Department | undefined;
     const userType = form.watch("userType");
     
+    // Ensure reCAPTCHA is created only once and only when needed
+    useEffect(() => {
+        if (!recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
+                'size': 'invisible',
+                'callback': () => {
+                    // reCAPTCHA solved
+                }
+            });
+            recaptchaVerifierRef.current.render();
+        }
+    }, []);
+    
     const formatPhoneNumberForAuth = (phone: string) => {
         let cleaned = phone.replace(/\D/g, '');
         if (cleaned.length === 8 && !cleaned.startsWith('509')) return `+509${cleaned}`;
@@ -151,7 +164,6 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         if (isVendor) {
             const now = new Date();
             const trialStart = Timestamp.fromDate(now);
-            // Fix: setMonth returns a number, so we need to create a new date
             const expirationDate = new Date();
             expirationDate.setMonth(now.getMonth() + 1);
             const trialExpiration = Timestamp.fromDate(expirationDate);
@@ -198,24 +210,16 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const onCaptchaVerify = async (data: SignupFormValues) => {
         setIsSubmitting(true);
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
+        const verifier = recaptchaVerifierRef.current;
+
+        if (!verifier) {
+            toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa t' kapab inisyalize. Tanpri rafrechi paj la." });
+            setIsSubmitting(false);
+            return;
+        }
 
         try {
-            // Ensure verifier is only created once
-            if (!recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
-                    'size': 'normal', // Use 'normal' for visible, or 'invisible'
-                    'callback': () => {
-                        // reCAPTCHA solved, allow signInWithPhoneNumber.
-                    },
-                });
-            }
-            
-            const verifier = recaptchaVerifierRef.current;
-            
-            // Render reCAPTCHA if it is not already rendered.
-            if(verifier.widgetId === undefined || verifier.widgetId === null) {
-                await verifier.render();
-            }
+            await verifier.verify(); // Trigger reCAPTCHA verification manually
 
             const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
             confirmationResultRef.current = confirmationResult;
@@ -225,13 +229,9 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
             console.error("Error during signInWithPhoneNumber:", error);
             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-             if (recaptchaVerifierRef.current && typeof recaptchaVerifierRef.current.clear === 'function') {
-                try {
-                    recaptchaVerifierRef.current.clear();
-                } catch (clearError) {
-                    console.error("Error clearing recaptcha verifier:", clearError);
-                }
-            }
+            // Reset the invisible reCAPTCHA by clearing the instance
+            verifier.clear();
+            recaptchaVerifierRef.current = null;
         } finally {
              setIsSubmitting(false);
         }
@@ -340,7 +340,7 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                     </>
                 )}
                 
-                <div id="recaptcha-container-signup" className="flex justify-center"></div>
+                <div id="recaptcha-container-signup"></div>
 
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -363,6 +363,19 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         resolver: zodResolver(loginSchema),
         defaultValues: { phone: "" }
     });
+
+    // Ensure reCAPTCHA is created only once and only when needed
+    useEffect(() => {
+        if (!recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
+                'size': 'invisible',
+                'callback': () => {
+                   // reCAPTCHA solved
+                }
+            });
+            recaptchaVerifierRef.current.render();
+        }
+    }, []);
     
     const formatPhoneNumberForAuth = (phone: string) => {
         let cleaned = phone.replace(/\D/g, '');
@@ -374,21 +387,17 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const handleSendCode = async (data: LoginFormValues) => {
         setIsSubmitting(true);
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
+        const verifier = recaptchaVerifierRef.current;
         
+        if (!verifier) {
+            toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa t' kapab inisyalize. Tanpri rafrechi paj la." });
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
-            if (!recaptchaVerifierRef.current) {
-                 recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
-                    'size': 'normal',
-                    'callback': () => {},
-                });
-            }
-           
-            const verifier = recaptchaVerifierRef.current;
-            
-            if (verifier.widgetId === undefined || verifier.widgetId === null) {
-                await verifier.render();
-            }
-            
+            await verifier.verify(); // Trigger reCAPTCHA verification manually
+
             const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
             confirmationResultRef.current = confirmationResult;
             setStep('otp');
@@ -396,13 +405,9 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
              console.error("Login error (send code):", error);
              toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-             if (recaptchaVerifierRef.current && typeof recaptchaVerifierRef.current.clear === 'function') {
-                try {
-                    recaptchaVerifierRef.current.clear();
-                } catch (clearError) {
-                    console.error("Error clearing recaptcha verifier:", clearError);
-                }
-            }
+             // Reset the invisible reCAPTCHA by clearing the instance
+             verifier.clear();
+             recaptchaVerifierRef.current = null;
         } finally {
             setIsSubmitting(false);
         }
@@ -451,7 +456,7 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                 <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem><FormLabel>Nimewo Telefòn</FormLabel><FormControl><Input placeholder="+509 XX XX XX XX" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
-                 <div id="recaptcha-container-login" className="flex justify-center"></div>
+                 <div id="recaptcha-container-login"></div>
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <Send className="mr-2 h-4 w-4" />
