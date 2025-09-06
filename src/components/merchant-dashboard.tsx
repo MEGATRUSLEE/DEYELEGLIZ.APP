@@ -672,7 +672,7 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
                 event.target.value = "";
             }
         }
-    };
+    }
     
     return (
         <Card>
