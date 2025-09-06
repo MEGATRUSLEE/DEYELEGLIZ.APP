@@ -159,9 +159,9 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold text-center text-primary">Kategori Pwodwi yo</h2>
             <div className="mt-4 grid grid-cols-3 gap-3">
                 {categories.map((category) => (
-                    <Link href={category.href} key={category.name} className="flex flex-col items-center justify-center gap-2 rounded-lg bg-secondary/30 p-3 text-center transition-transform hover:scale-105">
+                    <Link href={category.href} key={category.name} className="flex flex-col items-center justify-center gap-2 rounded-lg bg-card p-3 text-center transition-transform hover:scale-105 hover:shadow-md">
                         <category.icon className="h-8 w-8 text-primary" strokeWidth={1.5}/>
-                        <span className="text-xs font-medium text-primary text-center whitespace-pre-wrap">{category.name}</span>
+                        <span className="text-xs font-medium text-foreground text-center whitespace-pre-wrap">{category.name}</span>
                     </Link>
                 ))}
             </div>
@@ -189,22 +189,22 @@ export default function HomePage() {
           <div className="mt-4 space-y-4">
             {testimonials.map(testimonial => (
               <Card key={testimonial.name}>
-                <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+                <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-4">
                   <Avatar>
                     <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="person portrait"/>
                     <AvatarFallback>{testimonial.avatar}</AvatarFallback>
                   </Avatar>
-                  <CardTitle className="text-lg">{testimonial.name}</CardTitle>
+                  <CardTitle className="text-lg font-semibold">{testimonial.name}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="italic">"{testimonial.text}"</p>
+                <CardContent className="p-4 pt-0">
+                  <p className="italic text-muted-foreground">"{testimonial.text}"</p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </section>
         
-        <section className="space-y-4 rounded-lg bg-secondary/30 p-4">
+        <section className="space-y-4 rounded-lg bg-card border p-4">
           <h3 className="text-xl font-bold text-primary">Kontakte nou</h3>
           <div className="space-y-3">
               <a href="tel:+50931813578" className="flex items-center gap-3 text-muted-foreground hover:text-primary">
@@ -219,27 +219,27 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-4 pt-4">
               <a href="https://instagram.com/megatechhaiti" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  <Instagram className="h-7 w-7 text-primary hover:text-accent" />
+                  <Instagram className="h-7 w-7 text-primary hover:opacity-80" />
               </a>
               <a href="https://facebook.com/megatechhaiti" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                  <Facebook className="h-7 w-7 text-primary hover:text-accent" />
+                  <Facebook className="h-7 w-7 text-primary hover:opacity-80" />
               </a>
               <a href="https://tiktok.com/@megatechhaiti" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
-                   <TikTokIcon className="h-6 w-6 text-primary hover:text-accent" />
+                   <TikTokIcon className="h-6 w-6 text-primary hover:opacity-80" />
               </a>
           </div>
         </section>
 
-         <section className="space-y-4 rounded-lg bg-secondary/30 p-4">
+         <section className="space-y-4 rounded-lg bg-card border p-4">
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="about">
-                <AccordionTrigger className="text-lg font-semibold text-primary">A pwopo de Deye Legliz</AccordionTrigger>
+                <AccordionTrigger className="text-lg font-semibold text-primary hover:no-underline">A pwopo de Deye Legliz</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-justify">
                   Deye Legliz se yon platfòm maketplas ayisyen ke Mega Tech Haiti kreye pou soutni machann lokal ak ti biznis. Li enspire pa vre mache ki dèyè legliz Katolik vil Saint-Marc, kote plizyè santèn moun vann rad, elektwonik, atik menaj, ak pwodwi dyaspora voye. Aplikasyon sa pèmèt machann mete pwodwi yo sou li epi kliyan fè demann sou sa yo bezwen. Li konekte machann lokal ak kliyan nan tout Ayiti ak dyaspora.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="terms">
-                <AccordionTrigger className="text-lg font-semibold text-primary">Tèm ak Kondisyon Itilizasyon</AccordionTrigger>
+                <AccordionTrigger className="text-lg font-semibold text-primary hover:no-underline">Tèm ak Kondisyon Itilizasyon</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-justify whitespace-pre-line">
                   {`📜 Tèm Itilizasyon – Deye Legliz
 Dènye aktyalizasyon: Jiyè 2025
@@ -297,8 +297,8 @@ Si ou gen kesyon sou règ nou yo, kontakte nou:
 Mèsi paske w fè konfyans Deye Legliz. Ann grandi ekonomi lokal ansanm!`}
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="privacy">
-                <AccordionTrigger className="text-lg font-semibold text-primary">Politik Konfidansyalite</AccordionTrigger>
+              <AccordionItem value="privacy" className="border-b-0">
+                <AccordionTrigger className="text-lg font-semibold text-primary hover:no-underline">Politik Konfidansyalite</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-justify">
                   Nou pran konfidansyalite enfòmasyon pèsonèl ou oserye. Deye Legliz kolekte done tankou non w, imèl ou, ak nimewo telefòn ou pou fasilite kominikasyon ant achtè ak machann. Nou pa pataje enfòmasyon sa yo ak okenn lòt antite san pèmisyon w. Lè w kominike ak yon machann atravè WhatsApp, se politik konfidansyalite WhatsApp la ki aplike.
                 </AccordionContent>

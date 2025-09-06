@@ -210,7 +210,7 @@ export function RequestCard({ request }: RequestCardProps) {
                 </div>
             </div>
         </div>
-      <CardFooter className="p-3 pt-0 mt-auto bg-slate-50 flex justify-end gap-2">
+      <CardFooter className="p-3 pt-0 mt-auto bg-secondary/30 flex justify-end gap-2">
          {whatsappLink && (
             <Button asChild size="sm" style={{ backgroundColor: '#25D366', color: 'white' }} onClick={handleContactClick}>
               <Link
