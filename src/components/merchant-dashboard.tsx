@@ -674,7 +674,7 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
             }
         }
     };
-
+    
     return (
         <Card>
             <CardHeader>
@@ -948,3 +948,5 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
     </div>
   )
 }
+
+    
