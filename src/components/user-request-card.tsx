@@ -5,10 +5,8 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
-  CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import {
@@ -31,7 +29,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Eye, Trash2, GitPullRequest, Loader2, Phone, MessageCircle } from "lucide-react"
 import { db, storage, collection, query, where, onSnapshot, doc, deleteDoc } from "@/lib/firebase"
 import { ref, deleteObject } from "firebase/storage"
@@ -80,13 +77,14 @@ function ProposalsList({ requestId }: { requestId: string }) {
                     </div>
                     <div className="flex gap-2">
                         <Button asChild size="icon" variant="outline" className="h-9 w-9">
-                            <a href={`tel:${proposal.vendorPhone}`}><Phone className="h-4 w-4" /></a>
+                            <a href={`tel:${proposal.vendorPhone}`} aria-label={`Rele ${proposal.vendorName}`}><Phone className="h-4 w-4" /></a>
                         </Button>
                         <Button asChild size="icon" className="h-9 w-9" style={{ backgroundColor: '#25D366' }}>
                              <Link
                                 href={`https://wa.me/${proposal.vendorPhone.replace(/\D/g, '')}?text=Bonjou, mwen enterese nan pwopozisyon ou te fè pou demand mwen an sou Deye Legliz.`}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                aria-label={`Kontakte ${proposal.vendorName} sou WhatsApp`}
                             >
                                 <MessageCircle className="h-4 w-4 text-white" />
                             </Link>
@@ -196,7 +194,7 @@ export function UserRequestCard({ request }: UserRequestCardProps) {
 
              <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" disabled={isDeleting}>
+                    <Button variant="destructive" size="icon" className="h-9 w-9" aria-label="Efase demand la" disabled={isDeleting}>
                         {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </Button>
                 </AlertDialogTrigger>

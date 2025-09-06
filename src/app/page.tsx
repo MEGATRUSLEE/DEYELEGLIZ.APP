@@ -94,7 +94,7 @@ export default function HomePage() {
     <div className="flex flex-col bg-background">
       <header className="sticky top-0 z-20 bg-background/95 p-4 shadow-sm backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="flex-shrink-0" aria-label="Paj Dakèy">
              <div className="relative h-10 w-10">
                   <Image
                     src="/logo.png"
@@ -116,12 +116,12 @@ export default function HomePage() {
           </form>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
-                <Link href="/account">
+                <Link href="/account" aria-label="Gade Panye">
                     <ShoppingCart className="h-6 w-6" />
                 </Link>
             </Button>
             <Button variant="ghost" size="icon" asChild>
-                <Link href="/account">
+                <Link href="/account" aria-label="Notifikasyon">
                     <Bell className="h-6 w-6" />
                 </Link>
             </Button>
@@ -129,7 +129,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="flex-1 space-y-8 p-4 md:p-6">
+      <div className="flex-1 space-y-8 p-4 md:p-6">
         <section className="relative h-48 w-full rounded-lg overflow-hidden">
              <Image
                 src="https://images.unsplash.com/photo-1741119184701-fc1798acbf7f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8aGFpdGlhbiUyMG1hcmtldCUyMHNjZW5lfGVufDB8fHx8MTc1MjY5Njk4Mnww&ixlib=rb-4.1.0&q=80&w=1080"
@@ -310,9 +310,7 @@ Mèsi paske w fè konfyans Deye Legliz. Ann grandi ekonomi lokal ansanm!`}
           <p>&copy; {new Date().getFullYear()} Deye Legliz. Tout dwa rezève.</p>
           <p className="mt-1">Yon pwojè <span className="font-semibold text-primary">Mega Tech Haiti</span></p>
         </footer>
-      </main>
+      </div>
     </div>
   );
 }
-
-    

@@ -54,7 +54,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import type { UserProfile } from "@/app/account/page"
 import type { Request } from "@/app/requests/page"
-import { UserRequestCard } from "@/components/user-request-card"
 import { PlusCircle, Trash2, LogOut, Loader2, BarChart2, Store, Package, Power, PowerOff, Eye, AlertTriangle, Building, Upload, Send, CalendarDays, Inbox, ShieldCheck, HandCoins, Check, X, Info, ShieldQuestion } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -97,7 +96,7 @@ const haitiGeography = {
   "Lwès": ["Pòtoprens", "Kafou", "Dèlma", "Petyonvil", "Kenskòf", "Grangwav", "Tigwav", "Leyogàn", "Kabasè", "Lakayè", "Akayè"],
   "Latibonit": ["Gonayiv", "Sen Mak", "Vèrèt", "Dechalon", "Dèdin", "Lestè", "Ansagalèt"],
   "Nò": ["Okap", "Lenbe", "Pò Mago", "Akil dinò", "Plèn dinò", "Obòy", "Bastè"],
-  "Nòdès": ["Fòlibète", "Wanament", "Twou dinò", "Karis", "Valyè"],
+  "Nòdès": ["Fòliberte", "Wanament", "Twou dinò", "Karis", "Valyè"],
   "Nòdwès": ["Pòdepè", "Sen Lwi dinò", "Ansàfo", "Mòl Sen Nikola", "Latòti"],
   "Sant": ["Ench", "Mibalè", "Laskawobas", "Sèka Lasous", "Tomonn"],
   "Sid": ["Okay", "Aken", "Koto", "Pòsali", "Sen Lwi disid", "Lilavach"],
@@ -466,7 +465,9 @@ function MyProductsTab({ userProfile }: { userProfile: UserProfile }) {
                                 
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                        <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hover:text-destructive" aria-label="Efase pwodwi">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
@@ -637,7 +638,7 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
     
     const handleLogoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -783,7 +784,7 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Chwazi vil ou" />
-                                            </SelectTrigger>
+                                            </Trigger>
                                         </FormControl>
                                         <SelectContent>
                                             {haitiGeography[selectedDepartment].map(city => (
@@ -894,10 +895,10 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
         return (
              <Tabs defaultValue="products" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="products"><Package className="h-5 w-5" /></TabsTrigger>
-                    <TabsTrigger value="offers"><HandCoins className="h-5 w-5" /></TabsTrigger>
-                    <TabsTrigger value="profile"><Store className="h-5 w-5" /></TabsTrigger>
-                    <TabsTrigger value="analytics"><BarChart2 className="h-5 w-5" /></TabsTrigger>
+                    <TabsTrigger value="products" aria-label="Tab Pwodwi"><Package className="h-5 w-5" /></TabsTrigger>
+                    <TabsTrigger value="offers" aria-label="Tab Òf"><HandCoins className="h-5 w-5" /></TabsTrigger>
+                    <TabsTrigger value="profile" aria-label="Tab Pwofil"><Store className="h-5 w-5" /></TabsTrigger>
+                    <TabsTrigger value="analytics" aria-label="Tab Estatistik"><BarChart2 className="h-5 w-5" /></TabsTrigger>
                 </TabsList>
                 <TabsContent value="products" className="mt-4">
                     <MyProductsTab userProfile={userProfile} />
@@ -947,5 +948,3 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
     </div>
   )
 }
-
-    

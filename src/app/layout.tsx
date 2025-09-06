@@ -48,8 +48,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Deye Legliz" />
-        <link rel="apple-touch-icon" href="/logo-192.png" />
-        <link rel="icon" href="/logo.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/icon.png" sizes="any" />
       </head>
       <body
         className={cn(
@@ -58,7 +58,7 @@ export default function RootLayout({
         )}
       >
         <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background shadow-lg">
-          <main className="flex-1 pb-20">{children}</main>
+          <main className="flex-1 pb-20">A{children}</main>
           <BottomNav />
           <Toaster />
         </div>

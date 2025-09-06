@@ -54,7 +54,7 @@ export default function FoodPage() {
     <div className="flex flex-col">
       <header className="sticky top-0 z-10 flex items-center gap-4 bg-background p-4 shadow-sm">
          <Link href="/">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" aria-label="Tounen nan paj dakèy la">
             <ArrowLeft className="h-6 w-6" />
           </Button>
         </Link>
