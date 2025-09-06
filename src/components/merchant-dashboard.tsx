@@ -673,7 +673,7 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
                 event.target.value = "";
             }
         }
-    };
+    }
     
     return (
         <Card>
@@ -948,5 +948,3 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
     </div>
   )
 }
-
-    
