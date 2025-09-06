@@ -653,7 +653,6 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
             duration: 999999,
         });
 
-
         try {
             const storageRef = ref(storage, logoPath);
             await uploadBytes(storageRef, file);
@@ -673,7 +672,7 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
                 event.target.value = "";
             }
         }
-    }
+    };
     
     return (
         <Card>
