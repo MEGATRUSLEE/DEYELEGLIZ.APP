@@ -64,6 +64,7 @@ interface Offer {
     id: string;
     productId: string;
     productName: string;
+    productOwnerId: string;
     buyerId: string;
     buyerName: string;
     originalPrice: string;
@@ -334,18 +335,12 @@ function MyProductsTab({ userProfile }: { userProfile: UserProfile }) {
     useEffect(() => {
       if (!userProfile?.uid) return;
       setLoading(true);
-      const q = query(collection(db, "products"), where("userId", "==", userProfile.uid));
+      const q = query(collection(db, "products"), where("userId", "==", userProfile.uid), orderBy("createdAt", "desc"));
       
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const productsData: FetchedProduct[] = [];
         querySnapshot.forEach((doc) => {
           productsData.push({ id: doc.id, ...doc.data() } as FetchedProduct);
-        });
-
-        productsData.sort((a, b) => {
-            const dateA = a.createdAt ? a.createdAt.toMillis() : 0;
-            const dateB = b.createdAt ? b.createdAt.toMillis() : 0;
-            return dateB - dateA;
         });
 
         setProducts(productsData);
@@ -491,6 +486,7 @@ function MyProductsTab({ userProfile }: { userProfile: UserProfile }) {
         </div>
     )
 }
+
 
 function OffersTab({ userProfile }: { userProfile: UserProfile }) {
     const [offers, setOffers] = useState<Offer[]>([]);
@@ -672,7 +668,7 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
             }
         }
     };
-    
+
     return (
         <Card>
             <CardHeader>
@@ -782,7 +778,7 @@ function StoreInfoTab({ userProfile }: { userProfile: UserProfile }) {
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Chwazi vil ou" />
-                                            </Trigger>
+                                            </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             {haitiGeography[selectedDepartment].map(city => (
@@ -877,9 +873,36 @@ function AnalyticsTab({ userProfile }: { userProfile: UserProfile }) {
 export function MerchantDashboard({ userProfile, userRequests, onLogout }: { userProfile: UserProfile, userRequests: Request[], onLogout: () => void }) {
     const verificationStatus = userProfile.vendorApplication?.status;
 
-    const renderMainContent = () => {
-        if (verificationStatus === 'rejected') {
-            return (
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                 <div>
+                    <h1 className="text-2xl font-bold text-primary">Tablo Bò Machann</h1>
+                    <p className="text-muted-foreground">Byenvini, {userProfile.vendorApplication?.businessName || userProfile.name}!</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="text-right">
+                        <p className="text-sm font-semibold flex items-center gap-1.5">
+                             {verificationStatus === 'approved' && <ShieldCheck className="h-4 w-4 text-green-600" />}
+                             {verificationStatus === 'pending' && <ShieldQuestion className="h-4 w-4 text-orange-500" />}
+                             {verificationStatus === 'rejected' && <AlertTriangle className="h-4 w-4 text-red-600" />}
+                           <span className={
+                               verificationStatus === 'approved' ? 'text-green-700' :
+                               verificationStatus === 'pending' ? 'text-orange-600' :
+                               'text-red-700'
+                           }>
+                             {verificationStatus === 'approved' ? 'Kont Verifye' : verificationStatus === 'pending' ? 'An Atant Verifikasyon' : 'Kont Rejte'}
+                           </span>
+                        </p>
+                    </div>
+                    <Button variant="outline" onClick={onLogout} size="sm">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Dekonekte
+                    </Button>
+                </div>
+            </div>
+
+            {verificationStatus === 'rejected' ? (
                  <div className="flex items-center gap-3 rounded-lg border-l-4 border-red-500 bg-red-50 p-4 text-red-800">
                     <AlertTriangle className="h-6 w-6" />
                     <div>
@@ -887,10 +910,7 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
                         <p className="text-sm">Nou pa t kapab verifye kont ou an. Tanpri kontakte sipò pou plis enfòmasyon.</p>
                     </div>
                 </div>
-            )
-        }
-        
-        return (
+            ) : (
              <Tabs defaultValue="products" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="products" aria-label="Tab Pwodwi"><Package className="h-5 w-5" /></TabsTrigger>
@@ -902,47 +922,18 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
                     <MyProductsTab userProfile={userProfile} />
                 </TabsContent>
                 <TabsContent value="offers" className="mt-4">
-                <OffersTab userProfile={userProfile} />
+                    <OffersTab userProfile={userProfile} />
                 </TabsContent>
                 <TabsContent value="profile" className="mt-4">
-                <StoreInfoTab userProfile={userProfile} />
+                    <StoreInfoTab userProfile={userProfile} />
                 </TabsContent>
                 <TabsContent value="analytics" className="mt-4">
-                <AnalyticsTab userProfile={userProfile} />
+                    <AnalyticsTab userProfile={userProfile} />
                 </TabsContent>
             </Tabs>
-        )
-    }
-
-    return (
-    <div className="p-4 md:p-6 space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-            <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-primary">Tablo Bò Machann</h2>
-                 {verificationStatus === 'approved' && (
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                        <ShieldCheck className="h-4 w-4 mr-1"/>
-                        Verifye
-                    </Badge>
-                )}
-                 {(verificationStatus === 'pending' || !userProfile.phoneVerified) && (
-                     <Badge variant="secondary">
-                        <ShieldQuestion className="h-4 w-4 mr-1 text-amber-600"/>
-                        An atant verifikasyon
-                    </Badge>
-                )}
-            </div>
-            <p className="text-muted-foreground">Byenvini, {userProfile.vendorApplication?.businessName || userProfile.name}!</p>
+           )}
         </div>
-        <Button variant="outline" onClick={onLogout} size="sm">
-            <LogOut className="mr-2 h-4 w-4" />
-            Dekonekte
-        </Button>
-      </div>
-      
-      {renderMainContent()}
-      
-    </div>
-  )
+    );
 }
+
+    
