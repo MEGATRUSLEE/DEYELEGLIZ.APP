@@ -1,0 +1,111 @@
+[debug] [2025-10-14T17:26:02.496Z] ----------------------------------------------------------------------
+[debug] [2025-10-14T17:26:02.500Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /home/user/.global_modules/bin/firebase deploy
+[debug] [2025-10-14T17:26:02.501Z] CLI Version:   14.11.0
+[debug] [2025-10-14T17:26:02.501Z] Platform:      linux
+[debug] [2025-10-14T17:26:02.501Z] Node Version:  v20.19.1
+[debug] [2025-10-14T17:26:02.501Z] Time:          Tue Oct 14 2025 17:26:02 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-10-14T17:26:02.502Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-14T17:26:03.047Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-14T17:26:03.048Z] > authorizing via signed-in user (megatruslee20@gmail.com)
+[debug] [2025-10-14T17:26:03.048Z] [iam] checking project deye-legliz-pwa-ywv3l for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]
+[debug] [2025-10-14T17:26:03.050Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:03.050Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:03.051Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/deye-legliz-pwa-ywv3l:testIamPermissions [none]
+[debug] [2025-10-14T17:26:03.052Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/deye-legliz-pwa-ywv3l:testIamPermissions x-goog-quota-user=projects/deye-legliz-pwa-ywv3l
+[debug] [2025-10-14T17:26:03.052Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/deye-legliz-pwa-ywv3l:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]}
+[debug] [2025-10-14T17:26:03.223Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/deye-legliz-pwa-ywv3l:testIamPermissions 200
+[debug] [2025-10-14T17:26:03.223Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/deye-legliz-pwa-ywv3l:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]}
+[debug] [2025-10-14T17:26:03.225Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:03.225Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:03.226Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l [none]
+[debug] [2025-10-14T17:26:03.504Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l 200
+[debug] [2025-10-14T17:26:03.506Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l {"projectId":"deye-legliz-pwa-ywv3l","projectNumber":"372087064605","displayName":"deyelegliz","name":"projects/deye-legliz-pwa-ywv3l","resources":{"hostingSite":"deye-legliz-pwa-ywv3l","realtimeDatabaseInstance":"deye-legliz-pwa-ywv3l-default-rtdb"},"state":"ACTIVE","etag":"1_0b47c75a-1448-4d43-aa11-bf568ca99866"}
+[debug] [2025-10-14T17:26:08.148Z] defaultcredentials: writing to file /home/user/.config/firebase/megatruslee20_gmail_com_application_default_credentials.json
+[debug] [2025-10-14T17:26:08.157Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:08.157Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:08.162Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l/sites pageToken=&pageSize=10
+[debug] [2025-10-14T17:26:08.498Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l/sites 200
+[debug] [2025-10-14T17:26:08.500Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l/sites {"sites":[{"name":"projects/deye-legliz-pwa-ywv3l/sites/deye-legliz-pwa-ywv3l","defaultUrl":"https://deye-legliz-pwa-ywv3l.web.app","appId":"1:372087064605:web:4b89136b4519b184851ef4","type":"DEFAULT_SITE"}]}
+[debug] [2025-10-14T17:26:08.503Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:08.506Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:08.506Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:372087064605:web:4b89136b4519b184851ef4/config [none]
+[debug] [2025-10-14T17:26:08.983Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:372087064605:web:4b89136b4519b184851ef4/config 200
+[debug] [2025-10-14T17:26:08.984Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:372087064605:web:4b89136b4519b184851ef4/config {"projectId":"deye-legliz-pwa-ywv3l","appId":"1:372087064605:web:4b89136b4519b184851ef4","databaseURL":"https://deye-legliz-pwa-ywv3l-default-rtdb.firebaseio.com","storageBucket":"deye-legliz-pwa-ywv3l.firebasestorage.app","apiKey":"AIzaSyBiZBhEa-UDBpWSck08_m9rMpuXIdYwJ4s","authDomain":"deye-legliz-pwa-ywv3l.firebaseapp.com","messagingSenderId":"372087064605","projectNumber":"372087064605","version":"2"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2025-10-14T17:26:18.500Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:18.500Z] Checked if tokens are valid: true, expires at: 1760463985331
+[debug] [2025-10-14T17:26:18.501Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l/sites/deye-legliz-pwa-ywv3l [none]
+[debug] [2025-10-14T17:26:18.812Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l/sites/deye-legliz-pwa-ywv3l 200
+[debug] [2025-10-14T17:26:18.812Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/deye-legliz-pwa-ywv3l/sites/deye-legliz-pwa-ywv3l {"name":"projects/deye-legliz-pwa-ywv3l/sites/deye-legliz-pwa-ywv3l","defaultUrl":"https://deye-legliz-pwa-ywv3l.web.app","appId":"1:372087064605:web:4b89136b4519b184851ef4","type":"DEFAULT_SITE"}
+[info]   ▲ Next.js 14.2.4
+  - Environments: .env.local
+
+
+[info]    Creating an optimized production build ...
+
+[info]  ⚠ Compiled with warnings
+
+
+[info] ./src/components/auth-tabs.tsx
+Attempted import error: 'Timestamp' is not exported from '@/lib/firebase' (imported as 'Timestamp').
+
+Import trace for requested module:
+./src/components/auth-tabs.tsx
+./src/app/account/page.tsx
+
+./src/components/auth-tabs.tsx
+Attempted import error: 'Timestamp' is not exported from '@/lib/firebase' (imported as 'Timestamp').
+
+Import trace for requested module:
+./src/components/auth-tabs.tsx
+./src/app/account/page.tsx
+
+
+[info]  ⚠ Compiled with warnings
+
+
+[info] ./src/components/auth-tabs.tsx
+Attempted import error: 'Timestamp' is not exported from '@/lib/firebase' (imported as 'Timestamp').
+
+Import trace for requested module:
+./src/components/auth-tabs.tsx
+./src/app/account/page.tsx
+
+./src/components/auth-tabs.tsx
+Attempted import error: 'Timestamp' is not exported from '@/lib/firebase' (imported as 'Timestamp').
+
+Import trace for requested module:
+./src/components/auth-tabs.tsx
+./src/app/account/page.tsx
+
+
+[info]  ✓ Compiled successfully
+
+[info]    Linting and checking validity of types ...
+
+[info] Failed to compile.
+
+./src/components/auth-tabs.tsx:19:8
+Type error: Module '"@/lib/firebase"' has no exported member 'ConfirmationResult'.
+
+  17 |   signInWithPhoneNumber,
+  18 |   type User,
+> 19 |   type ConfirmationResult
+     |        ^
+  20 | } from "@/lib/firebase"
+  21 |
+  22 |
+
+[debug] [2025-10-14T17:28:00.443Z] Error: ENOENT: no such file or directory, open '/home/user/studio/.next/export-marker.json'
+[error] 
+[error] Error: An unexpected error has occurred.
