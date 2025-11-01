@@ -1,7 +1,7 @@
 
 "use client"
 import Link from 'next/link';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -33,7 +33,7 @@ export default function AuthScreen() {
     <div className="flex flex-col h-screen p-6 animate-fade-in bg-background">
         <div className="flex-1 flex flex-col justify-center items-center text-center">
             <div className="relative w-40 h-40 mb-8">
-                <Image
+                <NextImage
                     src="/logo.png"
                     alt="Logo Deye Legliz"
                     fill

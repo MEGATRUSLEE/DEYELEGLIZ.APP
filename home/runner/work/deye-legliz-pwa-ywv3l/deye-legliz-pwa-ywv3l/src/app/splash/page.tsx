@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import NextImage from "next/image";
 import { Loader2 } from "lucide-react";
 
 export default function SplashPage() {
@@ -21,7 +21,7 @@ export default function SplashPage() {
         <div className="flex flex-col items-center justify-center h-screen p-6 bg-[#0E1F34] text-white">
             <div className="flex flex-col items-center justify-center text-center">
                  <div className="relative w-[250px] h-[250px] mb-8 animate-scale-up">
-                    <Image
+                    <NextImage
                         src="/logo.png"
                         alt="Logo Deye Legliz"
                         fill

@@ -1,7 +1,7 @@
 
 "use client"
 
-import Image from "next/image"
+import NextImage from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -96,7 +96,7 @@ export default function HomePage() {
         <div className="flex items-center gap-4">
           <Link href="/home" className="flex-shrink-0" aria-label="Paj Dakèy">
              <div className="relative h-10 w-10">
-                  <Image
+                  <NextImage
                     src="/logo.png"
                     alt="Logo Deye Legliz"
                     fill
@@ -131,7 +131,7 @@ export default function HomePage() {
 
       <div className="flex-1 space-y-8 p-4 md:p-6">
         <section className="relative h-48 w-full rounded-lg overflow-hidden">
-             <Image
+             <NextImage
                 src="https://images.unsplash.com/photo-1741119184701-fc1798acbf7f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8aGFpdGlhbiUyMG1hcmtldCUyMHNjZW5lfGVufDB8fHx8MTc1MjY5Njk4Mnww&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Deye Legliz Banner"
                 fill
