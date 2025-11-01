@@ -42,8 +42,8 @@ export default function AuthScreen() {
                 />
             </div>
             
-            <p className="text-muted-foreground mb-10 max-w-xs mx-auto">
-              Antre nan platfòm ki konekte tout machann ak kliyan an Ayiti.
+            <p className="text-sm text-muted-foreground mb-10 max-w-xs mx-auto">
+              Antre nan platfòm ki konekte tout machann ak kliyan an Ayiti ak nan diaspora.
             </p>
             
             <div className="space-y-4 w-full max-w-sm">
