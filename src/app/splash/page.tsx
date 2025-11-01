@@ -20,7 +20,7 @@ export default function SplashPage() {
     useEffect(() => {
         const timer = setTimeout(() => {
             router.replace('/auth');
-        }, 3500);
+        }, 3000); // Redirect after 3 seconds
 
         return () => clearTimeout(timer);
     }, [router]);
@@ -28,15 +28,6 @@ export default function SplashPage() {
     return (
         <div className="flex flex-col items-center justify-center h-screen p-6 bg-[#5D3FD3] dark:bg-[#2A1F63] text-white">
             <div className="flex flex-col items-center justify-center text-center">
-                <lottie-player
-                    src="https://assets10.lottiefiles.com/packages/lf20_q5pk6p1k.json"
-                    background="transparent"
-                    speed="1"
-                    style={{ width: '180px', height: '180px', marginBottom: '20px' }}
-                    loop
-                    autoplay
-                ></lottie-player>
-
                  <div className="relative w-[110px] h-[110px] mb-[18px] animate-scale-up">
                     <Image
                         src="/logo.png"

@@ -3,10 +3,14 @@
 
 import "./globals.css"
 import { Poppins } from "next/font/google"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "@/components/bottom-nav"
 import { Toaster } from "@/components/ui/toaster"
+import { useAuthState } from "react-firebase-hooks/auth"
+import { auth } from "@/lib/firebase"
+import { Loader2 } from "lucide-react"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -20,8 +24,38 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const pathname = usePathname();
-  const noNavRoutes = ['/splash', '/auth'];
-  const showNav = !noNavRoutes.includes(pathname);
+  const router = useRouter();
+  const [user, loading] = useAuthState(auth);
+
+  const publicRoutes = ['/splash', '/auth', '/account'];
+  const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/account');
+
+  useEffect(() => {
+    // If auth state is still loading, do nothing.
+    if (loading) return;
+
+    // If user is not authenticated and is trying to access a protected route,
+    // redirect them to the auth page.
+    if (!user && !isPublicRoute) {
+      router.replace('/auth');
+    }
+  }, [user, loading, isPublicRoute, router, pathname]);
+
+  // While checking auth status, show a loader for protected routes
+  if (loading && !isPublicRoute) {
+    return (
+       <html lang="ht">
+        <body>
+            <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            </div>
+        </body>
+      </html>
+    )
+  }
+
+  // The bottom nav should only show on protected routes, except for the account page
+  const showNav = !isPublicRoute;
 
   return (
     <html lang="ht">
@@ -65,8 +99,11 @@ export default function RootLayout({
         )}
       >
         <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background shadow-lg">
-          <main className={cn("flex-1", showNav && "pb-20")}>{children}</main>
-          {showNav && <BottomNav />}
+          <main className={cn("flex-1", showNav && "pb-20")}>
+            {/* If user is not logged in, only render public routes. Otherwise, render everything. */}
+            {(user || isPublicRoute) && children}
+          </main>
+          {user && showNav && <BottomNav />}
           <Toaster />
         </div>
       </body>

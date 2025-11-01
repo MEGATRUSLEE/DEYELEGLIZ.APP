@@ -13,6 +13,7 @@ import { AuthTabs } from "@/components/auth-tabs"
 import { MerchantDashboard } from "@/components/merchant-dashboard"
 import type { Request } from "@/app/requests/page"
 import { UserRequestCard } from "@/components/user-request-card"
+import Link from "next/link"
 
 
 // Main User Profile structure for everyone
@@ -147,7 +148,7 @@ function BuyerDashboard({ profile, onLogout }: { profile: UserProfile, onLogout:
                     <h2 className="text-2xl font-bold text-primary">Kont Mwen</h2>
                     <p className="text-muted-foreground">Byenvini, {profile.name}!</p>
                 </div>
-                <Button variant="outline" onClick={onLogout} size="sm">
+                 <Button variant="outline" onClick={onLogout} size="sm">
                     <LogOut className="mr-2 h-4 w-4" />
                     Dekonekte
                 </Button>
@@ -198,7 +199,6 @@ export default function AccountPage() {
   const [user, loading] = useAuthState(auth);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isProfileLoading, setProfileLoading] = useState(true);
-  const [userRequests, setUserRequests] = useState<Request[]>([]);
   const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -212,9 +212,12 @@ export default function AccountPage() {
       
       const unsubscribeUser = onSnapshot(userDocRef, (docSnap) => {
         if (docSnap.exists()) {
-          setUserProfile({ uid: docSnap.id, ...docSnap.data() } as UserProfile);
+          const profileData = { uid: docSnap.id, ...docSnap.data() } as UserProfile;
+          setUserProfile(profileData);
         } else {
-             router.push('/auth');
+             // This case might happen if the user record exists in Auth but not Firestore
+             // Let's treat them as not fully signed up
+             setUserProfile(null);
         }
         setProfileLoading(false);
       }, (error) => {
@@ -223,22 +226,14 @@ export default function AccountPage() {
         setProfileLoading(false);
       });
 
-      const q = query(collection(db, "requests"), where("userId", "==", user.uid), orderBy("createdAt", "desc"));
-      const unsubscribeRequests = onSnapshot(q, (snapshot) => {
-            const requestsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Request);
-            setUserRequests(requestsData);
-      });
+      return () => unsubscribeUser();
 
-
-      return () => {
-        unsubscribeUser();
-        unsubscribeRequests();
-      }
     } else if (!loading) {
+      // User is not logged in and auth state is resolved
       setProfileLoading(false);
       setUserProfile(null);
     }
-  }, [user, loading, toast, router]);
+  }, [user, loading, toast]);
 
 
   const handleLogout = async () => {
@@ -249,8 +244,9 @@ export default function AccountPage() {
   }
 
   const handleLoginSuccess = () => {
-    // This will trigger the useEffect to refetch user data
-    router.refresh();
+    // Redirect to home after successful login/signup.
+    // The useEffect will handle fetching the new profile.
+    router.push('/home');
   }
   
   if (loading || isProfileLoading) {
@@ -267,7 +263,7 @@ export default function AccountPage() {
       {user && userProfile ? (
         userProfile.isVendor ? (
             <>
-                <MerchantDashboard userProfile={userProfile} userRequests={userRequests} onLogout={handleLogout}/>
+                <MerchantDashboard userProfile={userProfile} onLogout={handleLogout}/>
                 <div className="mt-6">
                   <SubscriptionStatus profile={userProfile} />
                 </div>
@@ -276,7 +272,20 @@ export default function AccountPage() {
             <BuyerDashboard profile={userProfile} onLogout={handleLogout} />
         )
       ) : (
-        <AuthTabs onLoginSuccess={handleLoginSuccess} defaultTab={defaultTab} />
+         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)]">
+            <Link href="/" className="mb-8">
+                 <div className="relative w-[80px] h-[80px]">
+                    <Image
+                        src="/logo.png"
+                        alt="Logo Deye Legliz"
+                        fill
+                        className="rounded-full object-contain"
+                        sizes="80px"
+                    />
+                </div>
+            </Link>
+            <AuthTabs onLoginSuccess={handleLoginSuccess} defaultTab={defaultTab} />
+         </div>
       )}
     </div>
   )
