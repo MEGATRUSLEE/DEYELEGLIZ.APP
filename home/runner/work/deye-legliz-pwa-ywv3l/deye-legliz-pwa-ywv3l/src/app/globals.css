@@ -85,6 +85,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  .splash-bg {
+    background: linear-gradient(135deg, #1E3A8A, #6B21A8);
+  }
 }
 
 .animate-scale-up {
