@@ -8,7 +8,7 @@ import { db } from "@/lib/firebase"
 
 import { Input } from "@/components/ui/input"
 import { ProductCard } from "@/components/product-card"
-import { Search, Loader2, Utensils, ArrowLeft } from "lucide-react"
+import { Search, Loader2, Flame, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Product as BaseProduct } from "@/app/market/page";
 
@@ -53,14 +53,14 @@ export default function FoodPage() {
   return (
     <div className="flex flex-col">
       <header className="sticky top-0 z-10 flex items-center gap-4 bg-background p-4 shadow-sm">
-         <Link href="/">
+         <Link href="/home">
           <Button variant="ghost" size="icon" aria-label="Tounen nan paj dakèy la">
             <ArrowLeft className="h-6 w-6" />
           </Button>
         </Link>
         <div className="flex items-center gap-2">
-            <Utensils className="h-6 w-6 text-primary"/>
-            <h1 className="text-2xl font-bold text-primary">Manje & Bwason</h1>
+            <Flame className="h-6 w-6 text-primary"/>
+            <h1 className="text-2xl font-bold text-primary">Gouyo</h1>
         </div>
       </header>
       <main className="flex-1 p-4">

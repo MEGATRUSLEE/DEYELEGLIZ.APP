@@ -5,6 +5,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { useSearchParams } from "next/navigation"
 import { 
   auth, 
   db, 
@@ -108,6 +109,9 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { toast } = useToast()
+    const searchParams = useSearchParams();
+    const userTypeParam = searchParams.get('userType') as 'buyer' | 'vendor' | null;
+
     const [step, setStep] = useState<'form' | 'otp'>('form');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<SignupFormValues | null>(null);
@@ -117,8 +121,15 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
     const form = useForm<SignupFormValues>({
         resolver: zodResolver(signupSchema),
-        defaultValues: { userType: "buyer", name: "", email: "", phone: "", country: "", department: "", city: "" }
+        defaultValues: { userType: userTypeParam || "buyer", name: "", email: "", phone: "", country: "", department: "", city: "" }
     });
+
+    useEffect(() => {
+        if (userTypeParam) {
+            form.setValue('userType', userTypeParam);
+        }
+    }, [userTypeParam, form]);
+
     const selectedCountry = form.watch("country");
     const selectedDepartment = form.watch("department") as Department | undefined;
     const userType = form.watch("userType");
@@ -219,8 +230,6 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         }
 
         try {
-            await verifier.verify(); // Trigger reCAPTCHA verification manually
-
             const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
             confirmationResultRef.current = confirmationResult;
             setFormData(data);
@@ -230,8 +239,13 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
             console.error("Error during signInWithPhoneNumber:", error);
             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
             // Reset the invisible reCAPTCHA by clearing the instance
-            verifier.clear();
-            recaptchaVerifierRef.current = null;
+            if (verifier) {
+                verifier.clear();
+            }
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
+                'size': 'invisible'
+            });
+            recaptchaVerifierRef.current.render();
         } finally {
              setIsSubmitting(false);
         }
@@ -264,7 +278,7 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                 <FormField control={form.control} name="userType" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Ki tip de kont ou vle?</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                         <SelectContent>
                             <SelectItem value="buyer">Mwen vle Achte</SelectItem>
@@ -396,8 +410,6 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         }
 
         try {
-            await verifier.verify(); // Trigger reCAPTCHA verification manually
-
             const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
             confirmationResultRef.current = confirmationResult;
             setStep('otp');
@@ -405,9 +417,12 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
              console.error("Login error (send code):", error);
              toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-             // Reset the invisible reCAPTCHA by clearing the instance
-             verifier.clear();
-             recaptchaVerifierRef.current = null;
+             // Reset the invisible reCAPTCHA
+             if (verifier) {
+                verifier.clear();
+             }
+             recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {'size': 'invisible'});
+             recaptchaVerifierRef.current.render();
         } finally {
             setIsSubmitting(false);
         }
@@ -468,8 +483,8 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 }
 
 
-export function AuthTabs({ onLoginSuccess }: { onLoginSuccess: () => void }) {
-  const [activeTab, setActiveTab] = useState("login");
+export function AuthTabs({ onLoginSuccess, defaultTab = 'login' }: { onLoginSuccess: () => void, defaultTab: string }) {
+  const [activeTab, setActiveTab] = useState(defaultTab);
   
   return (
     <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">

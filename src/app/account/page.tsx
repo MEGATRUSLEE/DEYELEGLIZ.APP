@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db, onSnapshot, doc, Timestamp, collection, query, where, orderBy } from "@/lib/firebase"
 import { Loader2, LogOut, CheckCircle2, AlertCircle, Clock } from "lucide-react"
@@ -119,6 +119,7 @@ function BuyerDashboard({ profile, onLogout }: { profile: UserProfile, onLogout:
     const [userRequests, setUserRequests] = useState<Request[]>([]);
     const [loadingRequests, setLoadingRequests] = useState(true);
     const { toast } = useToast();
+    const router = useRouter();
 
     useEffect(() => {
         if (!profile.uid) return;
@@ -134,6 +135,10 @@ function BuyerDashboard({ profile, onLogout }: { profile: UserProfile, onLogout:
         });
         return () => unsubscribe();
     }, [profile.uid, toast]);
+
+    const handleBecomeVendor = () => {
+        router.push('/account?tab=signup&userType=vendor');
+    }
 
     return (
         <div className="space-y-6">
@@ -159,6 +164,11 @@ function BuyerDashboard({ profile, onLogout }: { profile: UserProfile, onLogout:
                     <p>Lokalite: <span className="font-semibold">{profile.city}, {profile.country}</span></p>
                     <p>Manm depi: <span className="font-semibold">{profile.createdAt ? profile.createdAt.toDate().toLocaleDateString('fr-FR') : 'Ap chaje...'}</span></p>
                 </CardContent>
+                 <CardFooter>
+                    <Button onClick={handleBecomeVendor} className="w-full">
+                        Tounen yon Machann
+                    </Button>
+                </CardFooter>
             </Card>
 
             <Card>
@@ -191,6 +201,9 @@ export default function AccountPage() {
   const [userRequests, setUserRequests] = useState<Request[]>([]);
   const router = useRouter();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'login';
+
 
   useEffect(() => {
     if (user) {
@@ -201,7 +214,7 @@ export default function AccountPage() {
         if (docSnap.exists()) {
           setUserProfile({ uid: docSnap.id, ...docSnap.data() } as UserProfile);
         } else {
-             console.log("User document not found. It should be created on signup.");
+             router.push('/auth');
         }
         setProfileLoading(false);
       }, (error) => {
@@ -225,17 +238,18 @@ export default function AccountPage() {
       setProfileLoading(false);
       setUserProfile(null);
     }
-  }, [user, loading, toast]);
+  }, [user, loading, toast, router]);
 
 
   const handleLogout = async () => {
     await auth.signOut();
     setUserProfile(null);
     toast({ title: "Dekonekte", description: "Ou dekonekte avèk siksè." });
+    router.push('/auth');
   }
 
   const handleLoginSuccess = () => {
-    // Force a re-render and re-fetch of the server component data
+    // This will trigger the useEffect to refetch user data
     router.refresh();
   }
   
@@ -262,7 +276,7 @@ export default function AccountPage() {
             <BuyerDashboard profile={userProfile} onLogout={handleLogout} />
         )
       ) : (
-        <AuthTabs onLoginSuccess={handleLoginSuccess} />
+        <AuthTabs onLoginSuccess={handleLoginSuccess} defaultTab={defaultTab} />
       )}
     </div>
   )

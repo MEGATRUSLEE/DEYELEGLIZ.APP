@@ -3,13 +3,14 @@
 
 import "./globals.css"
 import { Poppins } from "next/font/google"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "@/components/bottom-nav"
 import { Toaster } from "@/components/ui/toaster"
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-poppins",
 })
 
@@ -18,6 +19,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const pathname = usePathname();
+  const noNavRoutes = ['/splash', '/auth'];
+  const showNav = !noNavRoutes.includes(pathname);
 
   return (
     <html lang="ht">
@@ -44,12 +48,15 @@ export default function RootLayout({
 
         {/* PWA */}
         <link rel="manifest" href="/manifest.webmanifest" />
-        <meta name="theme-color" content="#210100" />
+        <meta name="theme-color" content="#5D3FD3" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Deye Legliz" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <link rel="icon" href="/icon.png" sizes="any" />
+
+        {/* Lottie Player */}
+        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" async></script>
       </head>
       <body
         className={cn(
@@ -58,8 +65,8 @@ export default function RootLayout({
         )}
       >
         <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background shadow-lg">
-          <main className="flex-1 pb-20">A{children}</main>
-          <BottomNav />
+          <main className={cn("flex-1", showNav && "pb-20")}>{children}</main>
+          {showNav && <BottomNav />}
           <Toaster />
         </div>
       </body>
