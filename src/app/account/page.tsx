@@ -277,7 +277,7 @@ export default function AccountPage() {
             <Link href="/" className="mb-8">
                  <div className="relative w-[80px] h-[80px]">
                     <NextImage
-                        src="/logo.png"
+                        src="/assets/icons/deyelegliz-logo-192.png"
                         alt="Logo Deye Legliz"
                         fill
                         className="rounded-full object-contain"

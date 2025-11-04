@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import NextImage from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,21 +13,32 @@ import { Loader2 } from "lucide-react";
 export default function SplashPage() {
     const [user, loading] = useAuthState(auth);
     const router = useRouter();
+    const [isFirstVisit, setIsFirstVisit] = useState(false);
 
     useEffect(() => {
-        if (loading) return;
+        if (typeof window !== 'undefined') {
+            const onboardingComplete = localStorage.getItem('onboardingComplete');
+            if (!onboardingComplete) {
+                setIsFirstVisit(true);
+                router.replace('/onboarding');
+            }
+        }
+    }, [router]);
+
+    useEffect(() => {
+        if (loading || isFirstVisit) return;
 
         if (user) {
             const timer = setTimeout(() => {
                 router.replace('/home');
-            }, 2000); 
+            }, 1500); 
             return () => clearTimeout(timer);
         }
-        
-    }, [user, loading, router]);
+    }, [user, loading, router, isFirstVisit]);
 
-
-    if (loading) {
+    // If it's a first visit, the redirection to /onboarding will handle the view.
+    // This component will just show a loader.
+    if (isFirstVisit || loading) {
         return (
             <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
                 <Loader2 className="h-10 w-10 animate-spin" />
@@ -35,12 +46,13 @@ export default function SplashPage() {
         );
     }
     
+    // If the user is logged in, show a welcome message before redirecting
     if (user) {
         return (
              <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
                 <div className="relative w-[200px] h-[200px] mb-5">
                     <NextImage
-                        src="/logo.png"
+                        src="/assets/icons/deyelegliz-logo-512.png"
                         alt="Logo Deye Legliz"
                         fill
                         className="object-contain"
@@ -57,12 +69,13 @@ export default function SplashPage() {
         )
     }
 
+    // If not a first visit and not logged in, show login/signup options
     return (
         <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
             <div className="flex flex-col items-center justify-center text-center space-y-8">
                  <div className="relative w-[250px] h-[250px] animate-scale-up">
                     <NextImage
-                        src="/logo.png"
+                        src="/assets/icons/deyelegliz-logo-512.png"
                         alt="Logo Deye Legliz"
                         fill
                         className="object-contain"
@@ -83,4 +96,3 @@ export default function SplashPage() {
         </div>
     );
 }
-

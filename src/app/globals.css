@@ -86,7 +86,7 @@
     @apply bg-background text-foreground;
   }
   .splash-bg {
-    background: linear-gradient(135deg, #1E3A8A, #0A1E2B);
+    background: linear-gradient(135deg, #0A1E2B, #5D3FD3);
   }
 }
 
