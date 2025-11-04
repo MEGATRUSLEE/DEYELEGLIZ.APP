@@ -1,5 +1,6 @@
+
 import { Suspense } from "react"
-import Image from "next/image"
+import NextImage from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowLeft, MessageCircle, Loader2, Building, Eye, Power, PowerOff, Inbox, MapPin, HandCoins, ShieldCheck, CalendarDays } from "lucide-react"
@@ -107,7 +108,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             {product.imageUrls.map((img, index) => (
               <CarouselItem key={index}>
                 <div className="relative h-72 w-full">
-                  <Image
+                  <NextImage
                     src={img}
                     alt={`${product.name} - imaj ${index + 1}`}
                     fill

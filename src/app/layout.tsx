@@ -27,26 +27,27 @@ export default function RootLayout({
   const router = useRouter();
   const [user, loading] = useAuthState(auth);
 
-  const publicRoutes = ['/splash', '/auth', '/account'];
-  const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/account');
+  const publicRoutes = ['/splash', '/account'];
+  // Check if the current route is considered public
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
   useEffect(() => {
     // If auth state is still loading, do nothing.
     if (loading) return;
 
     // If user is not authenticated and is trying to access a protected route,
-    // redirect them to the auth page.
+    // redirect them to the splash page for login/signup.
     if (!user && !isPublicRoute) {
-      router.replace('/auth');
+      router.replace('/splash');
     }
   }, [user, loading, isPublicRoute, router, pathname]);
 
-  // While checking auth status, show a loader for protected routes
+  // While checking auth status, show a global loader for protected routes
   if (loading && !isPublicRoute) {
     return (
        <html lang="ht">
-        <body>
-            <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4">
+        <body className={cn("font-body antialiased", poppins.variable)}>
+            <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4 bg-background">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
             </div>
         </body>
@@ -54,8 +55,9 @@ export default function RootLayout({
     )
   }
 
-  // The bottom nav should only show on protected routes, except for the account page
-  const showNav = !isPublicRoute;
+  // Determine if the bottom nav should be shown.
+  // It should show on all authenticated routes except splash and account pages.
+  const showNav = user && !isPublicRoute;
 
   return (
     <html lang="ht">
@@ -88,9 +90,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Deye Legliz" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <link rel="icon" href="/icon.png" sizes="any" />
-
-        {/* Lottie Player */}
-        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" async></script>
       </head>
       <body
         className={cn(
@@ -101,9 +100,9 @@ export default function RootLayout({
         <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background shadow-lg">
           <main className={cn("flex-1", showNav && "pb-20")}>
             {/* If user is not logged in, only render public routes. Otherwise, render everything. */}
-            {(user || isPublicRoute) && children}
+            {(user || isPublicRoute) ? children : null}
           </main>
-          {user && showNav && <BottomNav />}
+          {showNav && <BottomNav />}
           <Toaster />
         </div>
       </body>

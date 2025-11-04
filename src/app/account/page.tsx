@@ -2,6 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import NextImage from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db, onSnapshot, doc, Timestamp, collection, query, where, orderBy } from "@/lib/firebase"
@@ -240,7 +241,7 @@ export default function AccountPage() {
     await auth.signOut();
     setUserProfile(null);
     toast({ title: "Dekonekte", description: "Ou dekonekte avèk siksè." });
-    router.push('/auth');
+    router.push('/splash');
   }
 
   const handleLoginSuccess = () => {
@@ -275,7 +276,7 @@ export default function AccountPage() {
          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)]">
             <Link href="/" className="mb-8">
                  <div className="relative w-[80px] h-[80px]">
-                    <Image
+                    <NextImage
                         src="/logo.png"
                         alt="Logo Deye Legliz"
                         fill

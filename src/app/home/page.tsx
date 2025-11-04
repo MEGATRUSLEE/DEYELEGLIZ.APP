@@ -1,7 +1,7 @@
 
 "use client"
 
-import Image from "next/image"
+import NextImage from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -92,9 +92,46 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col bg-background">
-      <main className="flex-1 space-y-8 p-4 md:p-6">
+      <header className="sticky top-0 z-20 bg-background/95 p-4 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center gap-4">
+          <Link href="/home" className="flex-shrink-0" aria-label="Paj Dakèy">
+             <div className="relative h-10 w-10">
+                  <NextImage
+                    src="/logo.png"
+                    alt="Logo Deye Legliz"
+                    fill
+                    sizes="40px"
+                    className="object-contain"
+                  />
+              </div>
+          </Link>
+          <form onSubmit={handleSearchSubmit} className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input 
+              placeholder="Chèche pwodwi..." 
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} 
+            />
+          </form>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" asChild>
+                <Link href="/account" aria-label="Gade Panye">
+                    <ShoppingCart className="h-6 w-6" />
+                </Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild>
+                <Link href="/account" aria-label="Notifikasyon">
+                    <Bell className="h-6 w-6" />
+                </Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 space-y-8 p-4 md:p-6">
         <section className="relative h-48 w-full rounded-lg overflow-hidden">
-             <Image
+             <NextImage
                 src="https://images.unsplash.com/photo-1741119184701-fc1798acbf7f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8aGFpdGlhbiUyMG1hcmtldCUyMHNjZW5lfGVufDB8fHx8MTc1MjY5Njk4Mnww&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Deye Legliz Banner"
                 fill
@@ -107,18 +144,6 @@ export default function HomePage() {
                 <h1 className="text-2xl font-bold text-white drop-shadow-md">Deye Legliz</h1>
                 <p className="mt-1 text-lg text-white/90 drop-shadow-md">Mache an liy pou tout Ayisyen toupatou.</p>
             </div>
-        </section>
-        
-        <section>
-          <form onSubmit={handleSearchSubmit} className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input 
-              placeholder="Chèche pwodwi, sèvis..." 
-              className="pl-10 h-12 text-base"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} 
-            />
-          </form>
         </section>
 
         <section className="flex flex-row items-center gap-3">
@@ -285,7 +310,7 @@ Mèsi paske w fè konfyans Deye Legliz. Ann grandi ekonomi lokal ansanm!`}
           <p>&copy; {new Date().getFullYear()} Deye Legliz. Tout dwa rezève.</p>
           <p className="mt-1">Yon pwojè <span className="font-semibold text-primary">Mega Tech Haiti</span></p>
         </footer>
-      </main>
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import NextImage from "next/image"
 import {
   Card,
   CardDescription,
@@ -150,7 +150,7 @@ export function UserRequestCard({ request }: UserRequestCardProps) {
         <div className="flex items-start gap-4 p-4">
             {hasImage && (
                 <div className="relative h-20 w-20 flex-shrink-0">
-                    <Image
+                    <NextImage
                         src={request.imageUrl!}
                         alt={request.title}
                         fill

@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { auth, db, storage, collection, addDoc, serverTimestamp, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy, type Timestamp } from "@/lib/firebase"
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"
-import Image from "next/image"
+import NextImage from "next/image"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -415,7 +415,7 @@ function MyProductsTab({ userProfile }: { userProfile: UserProfile }) {
                 <Card key={product.id} className="w-full">
                    <CardContent className="p-3 flex gap-4">
                         <div className="relative h-24 w-24 flex-shrink-0">
-                            <Image 
+                            <NextImage 
                                 src={product.imageUrls[0]} 
                                 alt={product.name} 
                                 fill
@@ -870,7 +870,7 @@ function AnalyticsTab({ userProfile }: { userProfile: UserProfile }) {
 
 
 // Main Dashboard Component
-export function MerchantDashboard({ userProfile, userRequests, onLogout }: { userProfile: UserProfile, userRequests: Request[], onLogout: () => void }) {
+export function MerchantDashboard({ userProfile, onLogout }: { userProfile: UserProfile, onLogout: () => void }) {
     const verificationStatus = userProfile.vendorApplication?.status;
 
     return (
@@ -935,5 +935,3 @@ export function MerchantDashboard({ userProfile, userRequests, onLogout }: { use
         </div>
     );
 }
-
-    

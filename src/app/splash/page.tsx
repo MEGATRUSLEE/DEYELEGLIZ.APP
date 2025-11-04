@@ -2,50 +2,94 @@
 "use client";
 
 import { useEffect } from "react";
+import NextImage from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-declare global {
-    namespace JSX {
-        interface IntrinsicElements {
-            'lottie-player': React.DetailedHTMLProps<any, HTMLElement>;
-        }
-    }
-}
-
 export default function SplashPage() {
+    const [user, loading] = useAuthState(auth);
     const router = useRouter();
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            router.replace('/auth');
-        }, 3000); // Redirect after 3 seconds
+        // If auth state is loading, do nothing yet.
+        if (loading) return;
 
-        return () => clearTimeout(timer);
-    }, [router]);
+        // If user is logged in, redirect to home after a delay.
+        if (user) {
+            const timer = setTimeout(() => {
+                router.replace('/home');
+            }, 2000); // 2-second delay for a smooth transition
+            return () => clearTimeout(timer);
+        }
+        
+        // If user is not logged in, this page will remain as the landing page.
+    }, [user, loading, router]);
 
-    return (
-        <div className="flex flex-col items-center justify-center h-screen p-6 bg-[#5D3FD3] dark:bg-[#2A1F63] text-white">
-            <div className="flex flex-col items-center justify-center text-center">
-                 <div className="relative w-[110px] h-[110px] mb-[18px] animate-scale-up">
-                    <Image
+
+    // While checking auth status, show a loader
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
+                <Loader2 className="h-10 w-10 animate-spin" />
+            </div>
+        );
+    }
+    
+    // If user is logged in, we show a brief "redirecting" loader
+    if (user) {
+        return (
+             <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
+                <div className="relative w-[200px] h-[200px] mb-5">
+                    <NextImage
                         src="/logo.png"
                         alt="Logo Deye Legliz"
                         fill
-                        className="rounded-full object-contain"
-                        sizes="110px"
+                        className="object-contain rounded-[20px]"
+                        sizes="200px"
+                        priority
+                    />
+                </div>
+                <h1 className="text-2xl font-bold" style={{ textShadow: '1px 2px 3px #00000055' }}>
+                    Byenveni {user.displayName || ''}!
+                </h1>
+                <p className="text-sm mt-2">Ap redireksyone w...</p>
+                 <Loader2 className="mt-6 h-6 w-6 animate-spin" />
+            </div>
+        )
+    }
+
+    // If no user, show the full splash/login page
+    return (
+        <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
+            <div className="flex flex-col items-center justify-center text-center space-y-5">
+                 <div className="relative w-[200px] h-[200px] mb-5 shadow-lg rounded-[20px] animate-scale-up">
+                    <NextImage
+                        src="/logo.png"
+                        alt="Logo Deye Legliz"
+                        fill
+                        className="object-contain rounded-[20px]"
+                        sizes="200px"
+                        priority
+                        style={{ textShadow: '1px 2px 3px #00000055' }}
                     />
                 </div>
 
-                <h1 className="text-3xl font-extrabold mb-2 animate-fade-in-up">
-                    Deye Legliz
+                <h1 className="text-3xl font-bold animate-fade-in-up" style={{ textShadow: '1px 2px 3px #00000055' }}>
+                    Byenveni sou Deye Legliz
                 </h1>
-                <p className="text-sm text-indigo-200 opacity-90 animate-fade-in">
-                    Konekte ak lavni komès lokal la
-                </p>
-
-                <Loader2 className="mt-6 h-6 w-6 animate-spin" />
+                
+                <div className="space-y-4 pt-4 w-full max-w-[250px] animate-fade-in">
+                    <Button asChild className="w-full h-[50px] rounded-full text-lg border border-white/40 bg-white/20 backdrop-blur-sm hover:bg-white/30">
+                        <Link href="/account?tab=login">Login</Link>
+                    </Button>
+                    <Button asChild className="w-full h-[50px] rounded-full text-lg border border-white/40 bg-white/30 backdrop-blur-sm hover:bg-white/40">
+                        <Link href="/account?tab=signup">Sign Up</Link>
+                    </Button>
+                </div>
             </div>
         </div>
     );

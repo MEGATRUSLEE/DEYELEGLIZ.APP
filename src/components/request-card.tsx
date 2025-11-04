@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import NextImage from "next/image"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -185,7 +185,7 @@ export function RequestCard({ request }: RequestCardProps) {
         <div className="flex items-start gap-4 p-4">
             {hasImage && (
                 <div className="relative h-24 w-24 flex-shrink-0">
-                    <Image
+                    <NextImage
                         src={request.imageUrl!}
                         alt={request.title}
                         fill

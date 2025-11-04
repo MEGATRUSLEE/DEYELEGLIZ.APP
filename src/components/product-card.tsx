@@ -1,5 +1,5 @@
 
-import Image from "next/image"
+import NextImage from "next/image"
 import Link from "next/link"
 import {
   Card,
@@ -24,7 +24,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <Card className="flex flex-col overflow-hidden w-full transition-shadow duration-300 hover:shadow-lg">
         <CardHeader className="p-0">
           <div className="relative h-40 w-full">
-            <Image
+            <NextImage
               src={product.imageUrls[0]}
               alt={product.name}
               fill
@@ -48,5 +48,3 @@ export function ProductCard({ product }: ProductCardProps) {
     </Link>
   )
 }
-
-    
