@@ -68,7 +68,6 @@ export default function SplashPage() {
                         className="object-contain rounded-[20px]"
                         sizes="200px"
                         priority
-                        style={{ textShadow: '1px 2px 3px #00000055' }}
                     />
                 </div>
 
@@ -88,4 +87,3 @@ export default function SplashPage() {
         </div>
     );
 }
-
