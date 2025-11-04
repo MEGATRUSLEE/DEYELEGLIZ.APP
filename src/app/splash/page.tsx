@@ -15,22 +15,18 @@ export default function SplashPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // If auth state is loading, do nothing yet.
         if (loading) return;
 
-        // If user is logged in, redirect to home after a delay.
         if (user) {
             const timer = setTimeout(() => {
                 router.replace('/home');
-            }, 2000); // 2-second delay for a smooth transition
+            }, 2000); 
             return () => clearTimeout(timer);
         }
         
-        // If user is not logged in, this page will remain as the landing page.
     }, [user, loading, router]);
 
 
-    // While checking auth status, show a loader
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
@@ -39,7 +35,6 @@ export default function SplashPage() {
         );
     }
     
-    // If user is logged in, we show a brief "redirecting" loader
     if (user) {
         return (
              <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
@@ -62,7 +57,6 @@ export default function SplashPage() {
         )
     }
 
-    // If no user, show the full splash/login page
     return (
         <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
             <div className="flex flex-col items-center justify-center text-center space-y-5">
@@ -84,13 +78,14 @@ export default function SplashPage() {
                 
                 <div className="space-y-4 pt-4 w-full max-w-[250px] animate-fade-in">
                     <Button asChild className="w-full h-[50px] rounded-full text-lg border border-white/40 bg-white/20 backdrop-blur-sm hover:bg-white/30">
-                        <Link href="/account?tab=login">Login</Link>
+                        <Link href="/account?tab=login">Konekte</Link>
                     </Button>
                     <Button asChild className="w-full h-[50px] rounded-full text-lg border border-white/40 bg-white/30 backdrop-blur-sm hover:bg-white/40">
-                        <Link href="/account?tab=signup">Sign Up</Link>
+                        <Link href="/account?tab=signup">Enskri</Link>
                     </Button>
                 </div>
             </div>
         </div>
     );
 }
+
