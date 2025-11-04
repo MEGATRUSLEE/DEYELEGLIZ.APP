@@ -13,15 +13,11 @@ import { Loader2 } from "lucide-react";
 export default function SplashPage() {
     const [user, authLoading] = useAuthState(auth);
     const router = useRouter();
-    // This state will manage what gets rendered.
-    // 'loading': Initial state, checking conditions.
-    // 'redirecting': Conditions met, redirecting.
-    // 'auth_options': Not logged in, not first visit, show buttons.
     const [status, setStatus] = useState<'loading' | 'redirecting' | 'auth_options'>('loading');
 
     useEffect(() => {
         // This effect runs only once to decide the initial flow.
-        const onboardingComplete = localStorage.getItem('onboardingComplete');
+        const onboardingComplete = typeof window !== 'undefined' && localStorage.getItem('onboardingComplete') === 'true';
         
         if (!onboardingComplete) {
             // First time visitor, redirect to onboarding.
@@ -33,7 +29,7 @@ export default function SplashPage() {
         // It's a returning user, now we wait for Firebase auth state.
         if (!authLoading) {
             if (user) {
-                // User is logged in, redirect to home.
+                // User is logged in, show welcome and then redirect.
                 setStatus('redirecting');
                 const timer = setTimeout(() => {
                    router.replace('/home');
@@ -97,4 +93,3 @@ export default function SplashPage() {
         </div>
     );
 }
-
