@@ -13,20 +13,28 @@ import { Loader2 } from "lucide-react";
 export default function SplashPage() {
     const [user, loading] = useAuthState(auth);
     const router = useRouter();
-    const [isFirstVisit, setIsFirstVisit] = useState(false);
+    const [isFirstVisit, setIsFirstVisit] = useState<boolean | null>(null);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const onboardingComplete = localStorage.getItem('onboardingComplete');
             if (!onboardingComplete) {
                 setIsFirstVisit(true);
-                router.replace('/onboarding');
+            } else {
+                setIsFirstVisit(false);
             }
         }
-    }, [router]);
+    }, []);
 
     useEffect(() => {
-        if (loading || isFirstVisit) return;
+        if (isFirstVisit === null) return; // Wait for the firstVisit state to be determined
+
+        if (isFirstVisit) {
+            router.replace('/onboarding');
+            return;
+        }
+
+        if (loading) return; // Wait for auth state to resolve if it's not a first visit
 
         if (user) {
             const timer = setTimeout(() => {
@@ -36,9 +44,8 @@ export default function SplashPage() {
         }
     }, [user, loading, router, isFirstVisit]);
 
-    // If it's a first visit, the redirection to /onboarding will handle the view.
-    // This component will just show a loader.
-    if (isFirstVisit || loading) {
+    // Show a global loader while we determine the redirection path
+    if (isFirstVisit === null || isFirstVisit === true || loading) {
         return (
             <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
                 <Loader2 className="h-10 w-10 animate-spin" />

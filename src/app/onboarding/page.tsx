@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -35,10 +34,6 @@ const onboardingData = {
     text: "Sote",
     action: "goToLogin"
   },
-  nextButton: {
-    text: "Swivan",
-    action: "nextPage"
-  },
   finishButton: {
     text: "Kòmanse",
     action: "goToLogin"
@@ -57,10 +52,6 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleSkip = () => {
-    handleFinish();
-  };
-
   const handleFinish = () => {
     if (typeof window !== 'undefined') {
         localStorage.setItem('onboardingComplete', 'true');
@@ -74,7 +65,7 @@ export default function OnboardingPage() {
     <div className="flex flex-col h-screen text-white" style={{ backgroundColor: onboardingData.backgroundColor }}>
       <header className="flex justify-end p-4">
         {currentPage < onboardingData.pages.length - 1 && (
-            <Button variant="ghost" onClick={handleSkip} className="text-white hover:text-white/80 hover:bg-white/10">
+            <Button variant="ghost" onClick={handleFinish} className="text-white hover:text-white/80 hover:bg-white/10">
             {onboardingData.skipButton.text}
             </Button>
         )}
