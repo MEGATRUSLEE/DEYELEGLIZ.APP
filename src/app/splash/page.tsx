@@ -11,52 +11,45 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 export default function SplashPage() {
-    const [user, loading] = useAuthState(auth);
+    const [user, authLoading] = useAuthState(auth);
     const router = useRouter();
-    const [isFirstVisit, setIsFirstVisit] = useState<boolean | null>(null);
+    // This state will manage what gets rendered.
+    // 'loading': Initial state, checking conditions.
+    // 'redirecting': Conditions met, redirecting.
+    // 'auth_options': Not logged in, not first visit, show buttons.
+    const [status, setStatus] = useState<'loading' | 'redirecting' | 'auth_options'>('loading');
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const onboardingComplete = localStorage.getItem('onboardingComplete');
-            if (!onboardingComplete) {
-                setIsFirstVisit(true);
-            } else {
-                setIsFirstVisit(false);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (isFirstVisit === null) return; // Wait for the firstVisit state to be determined
-
-        if (isFirstVisit) {
+        // This effect runs only once to decide the initial flow.
+        const onboardingComplete = localStorage.getItem('onboardingComplete');
+        
+        if (!onboardingComplete) {
+            // First time visitor, redirect to onboarding.
+            setStatus('redirecting');
             router.replace('/onboarding');
             return;
         }
 
-        if (loading) return; // Wait for auth state to resolve if it's not a first visit
-
-        if (user) {
-            const timer = setTimeout(() => {
-                router.replace('/home');
-            }, 1500); 
-            return () => clearTimeout(timer);
+        // It's a returning user, now we wait for Firebase auth state.
+        if (!authLoading) {
+            if (user) {
+                // User is logged in, redirect to home.
+                setStatus('redirecting');
+                const timer = setTimeout(() => {
+                   router.replace('/home');
+                }, 1500); // A small delay to show welcome message
+                return () => clearTimeout(timer);
+            } else {
+                // User is not logged in, show login/signup options.
+                setStatus('auth_options');
+            }
         }
-    }, [user, loading, router, isFirstVisit]);
+    }, [authLoading, user, router]);
 
-    // Show a global loader while we determine the redirection path
-    if (isFirstVisit === null || isFirstVisit === true || loading) {
+
+    if (status === 'loading' || status === 'redirecting') {
         return (
             <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
-                <Loader2 className="h-10 w-10 animate-spin" />
-            </div>
-        );
-    }
-    
-    // If the user is logged in, show a welcome message before redirecting
-    if (user) {
-        return (
-             <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
                 <div className="relative w-[200px] h-[200px] mb-5">
                     <NextImage
                         src="/assets/icons/deyelegliz-logo-512.png"
@@ -67,16 +60,17 @@ export default function SplashPage() {
                         priority
                     />
                 </div>
-                <h1 className="text-2xl font-bold" style={{ textShadow: '1px 2px 3px #00000055' }}>
-                    Byenveni {user.displayName || ''}!
-                </h1>
-                <p className="text-sm mt-2">Ap redireksyone w...</p>
-                 <Loader2 className="mt-6 h-6 w-6 animate-spin" />
+                 {status === 'redirecting' && user && (
+                    <h1 className="text-2xl font-bold" style={{ textShadow: '1px 2px 3px #00000055' }}>
+                        Byenveni {user.displayName || ''}!
+                    </h1>
+                )}
+                <Loader2 className="mt-6 h-8 w-8 animate-spin" />
             </div>
-        )
+        );
     }
-
-    // If not a first visit and not logged in, show login/signup options
+    
+    // This will only be rendered if status is 'auth_options'
     return (
         <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
             <div className="flex flex-col items-center justify-center text-center space-y-8">
@@ -103,3 +97,4 @@ export default function SplashPage() {
         </div>
     );
 }
+
