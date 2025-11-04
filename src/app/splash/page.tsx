@@ -43,7 +43,7 @@ export default function SplashPage() {
                         src="/logo.png"
                         alt="Logo Deye Legliz"
                         fill
-                        className="object-contain rounded-[20px]"
+                        className="object-contain"
                         sizes="200px"
                         priority
                     />
@@ -59,23 +59,19 @@ export default function SplashPage() {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
-            <div className="flex flex-col items-center justify-center text-center space-y-5">
-                 <div className="relative w-[200px] h-[200px] mb-5 shadow-lg rounded-[20px] animate-scale-up">
+            <div className="flex flex-col items-center justify-center text-center space-y-8">
+                 <div className="relative w-[250px] h-[250px] animate-scale-up">
                     <NextImage
                         src="/logo.png"
                         alt="Logo Deye Legliz"
                         fill
-                        className="object-contain rounded-[20px]"
-                        sizes="200px"
+                        className="object-contain"
+                        sizes="250px"
                         priority
                     />
                 </div>
 
-                <h1 className="text-3xl font-bold animate-fade-in-up" style={{ textShadow: '1px 2px 3px #00000055' }}>
-                    Byenveni sou Deye Legliz
-                </h1>
-                
-                <div className="space-y-4 pt-4 w-full max-w-[250px] animate-fade-in">
+                <div className="space-y-4 pt-4 w-full max-w-[280px] animate-fade-in">
                     <Button asChild className="w-full h-[50px] rounded-full text-lg border border-white/40 bg-white/20 backdrop-blur-sm hover:bg-white/30">
                         <Link href="/account?tab=login">Konekte</Link>
                     </Button>
@@ -87,3 +83,4 @@ export default function SplashPage() {
         </div>
     );
 }
+
