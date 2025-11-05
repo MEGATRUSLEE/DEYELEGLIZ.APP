@@ -16,26 +16,32 @@ export default function SplashPage() {
     const [status, setStatus] = useState<'loading' | 'redirecting' | 'auth_options'>('loading');
 
     useEffect(() => {
-        const onboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
-
+        // This effect runs only once to decide the initial flow.
+        const onboardingComplete = typeof window !== 'undefined' && localStorage.getItem('onboardingComplete') === 'true';
+        
         if (!onboardingComplete) {
+            // First time visitor, redirect to onboarding.
             setStatus('redirecting');
             router.replace('/onboarding');
             return;
         }
 
-        if (authLoading) {
-            setStatus('loading');
-            return;
+        // It's a returning user, now we wait for Firebase auth state.
+        if (!authLoading) {
+            if (user) {
+                // User is logged in, show welcome and then redirect.
+                setStatus('redirecting');
+                const timer = setTimeout(() => {
+                   router.replace('/home');
+                }, 1500); // A small delay to show welcome message
+                return () => clearTimeout(timer);
+            } else {
+                // User is not logged in, show login/signup options.
+                setStatus('auth_options');
+            }
         }
+    }, [authLoading, user, router]);
 
-        if (user) {
-            setStatus('redirecting');
-            router.replace('/home');
-        } else {
-            setStatus('auth_options');
-        }
-    }, [user, authLoading, router]);
 
     if (status === 'loading' || status === 'redirecting') {
         return (
@@ -50,7 +56,7 @@ export default function SplashPage() {
                         priority
                     />
                 </div>
-                 {user && (
+                 {status === 'redirecting' && user && (
                     <h1 className="text-2xl font-bold" style={{ textShadow: '1px 2px 3px #00000055' }}>
                         Byenveni {user.displayName || ''}!
                     </h1>
@@ -60,6 +66,7 @@ export default function SplashPage() {
         );
     }
     
+    // This will only be rendered if status is 'auth_options'
     return (
         <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
             <div className="flex flex-col items-center justify-center text-center space-y-8">
@@ -79,7 +86,7 @@ export default function SplashPage() {
                         <Link href="/account?tab=login">Konekte</Link>
                     </Button>
                     <Button asChild className="w-full h-[50px] rounded-full text-lg border border-white/40 bg-white/30 backdrop-blur-sm hover:bg-white/40">
-                        <Link href="/account?tab=signup">Enskri</Link>
+                        <Link href="/account?tab=signup">Kreye kont</Link>
                     </Button>
                 </div>
             </div>

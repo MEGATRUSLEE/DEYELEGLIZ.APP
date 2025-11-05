@@ -94,17 +94,6 @@ export default function HomePage() {
     <div className="flex flex-col bg-background">
       <header className="sticky top-0 z-20 bg-background/95 p-4 shadow-sm backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          <Link href="/home" className="flex-shrink-0" aria-label="Paj Dakèy">
-             <div className="relative h-10 w-10">
-                  <NextImage
-                    src="/logo.png"
-                    alt="Logo Deye Legliz"
-                    fill
-                    sizes="40px"
-                    className="object-contain"
-                  />
-              </div>
-          </Link>
           <form onSubmit={handleSearchSubmit} className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input 

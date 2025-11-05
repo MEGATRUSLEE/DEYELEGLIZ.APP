@@ -25,7 +25,7 @@ const onboardingData = {
       buttonText: "Swivan"
     },
     {
-      title: "Mande sa w bezwen, jwenn sa w chèche",
+      title: "Fè yon demann epi jwenn moun ki gen solisyon an",
       description: "Ou bezwen yon pwodwi oswa yon sèvis? Fè yon demann, epi kominote Deye Legliz la ap reponn ou vit.",
       image: "/assets/onboarding/request-service.png",
       buttonText: "Kòmanse"
@@ -33,9 +33,11 @@ const onboardingData = {
   ],
   skipButton: {
     text: "Sote",
+    action: "goToLogin"
   },
   finishButton: {
     text: "Kòmanse",
+    action: "goToLogin"
   }
 };
 
