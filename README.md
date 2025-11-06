@@ -10,7 +10,9 @@ Pou lanse sèvè devlopman an, egzekite kòmand sa a:
 npm run dev
 ```
 
-Louvri [http://localhost:3000](http://localhost:3000) nan navigatè w la pou w wè rezilta a.
+Louvri [mwen vle ou konpotew tan yon profesyonel ki gen maste nan developer app 
+
+mwen vle ou enimero tout paj gen gen nan app la pou mwen epwi pou dim wol yo apresa ou pral bien aranje tout paj nan lod poum gen yon app tre profesyonel ](http://localhost:3000) nan navigatè w la pou w wè rezilta a.
 
 ## Fonksyonalite prensipal
 
