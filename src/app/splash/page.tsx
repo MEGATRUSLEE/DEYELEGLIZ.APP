@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -49,7 +50,7 @@ export default function SplashPage() {
             <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
                 <div className="relative w-[200px] h-[200px] mb-5">
                     <NextImage
-                        src="/assets/icons/deyelegliz-logo-512.png"
+                        src="https://picsum.photos/seed/logo/512/512"
                         alt="Logo Deye Legliz"
                         fill
                         className="object-contain"
@@ -73,7 +74,7 @@ export default function SplashPage() {
             <div className="flex flex-col items-center justify-center text-center space-y-8">
                  <div className="relative w-[250px] h-[250px] animate-scale-up">
                     <NextImage
-                        src="/assets/icons/deyelegliz-logo-512.png"
+                        src="https://picsum.photos/seed/logo/512/512"
                         alt="Logo Deye Legliz"
                         fill
                         className="object-contain"
