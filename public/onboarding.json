@@ -7,19 +7,16 @@
       {
         "title": "Konekte ak pwodui lokal, san entèmedyè",
         "description": "Yon platfòm ki mete machann ak kliyan ansanm pou vann oswa achte pwodui lokal fasilman — lakay ou oswa nan diaspora.",
-        "image": "https://picsum.photos/seed/market/600/400",
         "buttonText": "Swivan"
       },
       {
         "title": "Fè biznis san baryè, lakay ak aletranje",
         "description": "Deye Legliz pèmèt tout Ayisyen, kèlkeswa kote yo ye, fè tranzaksyon dirèk pou pwodwi oswa sèvis lokal.",
-        "image": "https://picsum.photos/seed/connect/600/400",
         "buttonText": "Swivan"
       },
       {
         "title": "Fè yon demann epi jwenn moun ki gen solisyon an",
         "description": "Ou bezwen yon pwodwi oswa yon sèvis? Fè yon demann, epi kominote Deye Legliz la ap reponn ou vit.",
-        "image": "https://picsum.photos/seed/request/600/400",
         "buttonText": "Kòmanse"
       }
     ],
