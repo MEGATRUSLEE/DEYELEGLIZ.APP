@@ -1,0 +1,39 @@
+{
+  "onboarding": {
+    "backgroundColor": "#0A1E2B",
+    "textColor": "#FFFFFF",
+    "accentColor": "#D4A017",
+    "pages": [
+      {
+        "title": "Konekte ak pwodui lokal, san entèmedyè",
+        "description": "Yon platfòm ki mete machann ak kliyan ansanm pou vann oswa achte pwodui lokal fasilman — lakay ou oswa nan diaspora.",
+        "image": "/assets/onboarding/local-market.png",
+        "buttonText": "Swivan"
+      },
+      {
+        "title": "Fè biznis san baryè, lakay ak aletranje",
+        "description": "Deye Legliz pèmèt tout Ayisyen, kèlkeswa kote yo ye, fè tranzaksyon dirèk pou pwodwi oswa sèvis lokal.",
+        "image": "/assets/onboarding/diaspora-connect.png",
+        "buttonText": "Swivan"
+      },
+      {
+        "title": "Fè yon demann epi jwenn moun ki gen solisyon an",
+        "description": "Ou bezwen yon pwodwi oswa yon sèvis? Fè yon demann, epi kominote Deye Legliz la ap reponn ou vit.",
+        "image": "/assets/onboarding/request-service.png",
+        "buttonText": "Kòmanse"
+      }
+    ],
+    "skipButton": {
+      "text": "Sote",
+      "action": "goToLogin"
+    },
+    "nextButton": {
+      "text": "Swivan",
+      "action": "nextPage"
+    },
+    "finishButton": {
+      "text": "Kòmanse",
+      "action": "goToLogin"
+    }
+  }
+}
