@@ -24,23 +24,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const pathname = usePathname();
-  const router = useRouter();
   const [user, loading] = useAuthState(auth);
 
-  const publicRoutes = ['/splash', '/account'];
-  // Check if the current route is considered public
+  // Define routes that do not require authentication
+  const publicRoutes = ['/', '/auth', '/onboarding'];
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
-  useEffect(() => {
-    // If auth state is still loading, do nothing.
-    if (loading) return;
-
-    // If user is not authenticated and is trying to access a protected route,
-    // redirect them to the splash page for login/signup.
-    if (!user && !isPublicRoute) {
-      router.replace('/splash');
-    }
-  }, [user, loading, isPublicRoute, router, pathname]);
+  // Determine if the bottom nav should be shown.
+  // Show it only on authenticated routes.
+  const showNav = user && !isPublicRoute;
 
   // While checking auth status, show a global loader for protected routes
   if (loading && !isPublicRoute) {
@@ -54,10 +46,6 @@ export default function RootLayout({
       </html>
     )
   }
-
-  // Determine if the bottom nav should be shown.
-  // It should show on all authenticated routes except splash and account pages.
-  const showNav = user && !isPublicRoute;
 
   return (
     <html lang="ht">
@@ -99,8 +87,7 @@ export default function RootLayout({
       >
         <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background shadow-lg">
           <main className={cn("flex-1", showNav && "pb-20")}>
-            {/* If user is not logged in, only render public routes. Otherwise, render everything. */}
-            {(user || isPublicRoute) ? children : null}
+            {children}
           </main>
           {showNav && <BottomNav />}
           <Toaster />

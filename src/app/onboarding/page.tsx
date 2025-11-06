@@ -1,62 +1,56 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
+import NextImage from 'next/image';
 
-interface OnboardingPageData {
-  title: string;
-  description: string;
-  image: string;
-}
+const onboardingData = {
+  backgroundColor: "#0A1E2B",
+  textColor: "#FFFFFF",
+  accentColor: "#D4A017",
+  pages: [
+    {
+      title: "Konekte ak pwodui lokal, san entèmedyè",
+      description: "Yon platfòm ki mete machann ak kliyan ansanm pou vann oswa achte pwodui lokal fasilman — lakay ou oswa nan diaspora.",
+      image: "https://picsum.photos/seed/market/600/400"
+    },
+    {
+      title: "Fè biznis san baryè, lakay ak aletranje",
+      description: "Deye Legliz pèmèt tout Ayisyen, kèlkeswa kote yo ye, fè tranzaksyon dirèk pou pwodwi oswa sèvis lokal.",
+      image: "https://picsum.photos/seed/connect/600/400"
+    },
+    {
+      title: "Fè yon demann epi jwenn moun ki gen solisyon an",
+      description: "Ou bezwen yon pwodwi oswa yon sèvis? Fè yon demann, epi kominote Deye Legliz la ap reponn ou vit.",
+      image: "https://picsum.photos/seed/request/600/400"
+    }
+  ],
+  skipButton: { text: "Sote" },
+  nextButton: { text: "Swivan" },
+  finishButton: { text: "Kòmanse" }
+};
 
-interface OnboardingData {
-  backgroundColor: string;
-  textColor: string;
-  accentColor: string;
-  pages: OnboardingPageData[];
-  skipButton: { text: string };
-  nextButton: { text: string };
-  finishButton: { text: string };
-}
 
 export default function OnboardingPage() {
-  const [data, setData] = useState<OnboardingData | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const router = useRouter();
-
-  useEffect(() => {
-    fetch("/onboarding.json")
-      .then((res) => res.json())
-      .then((json) => setData(json.onboarding));
-  }, []);
+  const data = onboardingData;
 
   const handleFinish = () => {
-    if (typeof window !== 'undefined') {
-        localStorage.setItem('onboardingComplete', 'true');
-    }
-    router.replace('/account?tab=login');
+    // When onboarding is skipped or finished, go to the main app
+    router.replace('/home');
   };
 
   const handleNext = () => {
-    if (data && currentPage < data.pages.length - 1) {
+    if (currentPage < data.pages.length - 1) {
       setCurrentPage(currentPage + 1);
     } else {
       handleFinish();
     }
   };
-
-  if (!data) {
-    return (
-        <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4" style={{ backgroundColor: "#0A1E2B" }}>
-            <Loader2 className="h-10 w-10 animate-spin text-white" />
-        </div>
-    );
-  }
 
   const page = data.pages[currentPage];
   const isLastPage = currentPage === data.pages.length - 1;
@@ -112,3 +106,4 @@ export default function OnboardingPage() {
     </div>
   );
 }
+

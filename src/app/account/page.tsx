@@ -139,7 +139,7 @@ function BuyerDashboard({ profile, onLogout }: { profile: UserProfile, onLogout:
     }, [profile.uid, toast]);
 
     const handleBecomeVendor = () => {
-        router.push('/account?tab=signup&userType=vendor');
+        router.push('/auth?tab=signup&userType=vendor');
     }
 
     return (
@@ -202,10 +202,7 @@ export default function AccountPage() {
   const [isProfileLoading, setProfileLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const defaultTab = searchParams.get('tab') || 'login';
-
-
+  
   useEffect(() => {
     if (user) {
       setProfileLoading(true);
@@ -216,8 +213,6 @@ export default function AccountPage() {
           const profileData = { uid: docSnap.id, ...docSnap.data() } as UserProfile;
           setUserProfile(profileData);
         } else {
-             // This case might happen if the user record exists in Auth but not Firestore
-             // Let's treat them as not fully signed up
              setUserProfile(null);
         }
         setProfileLoading(false);
@@ -230,27 +225,21 @@ export default function AccountPage() {
       return () => unsubscribeUser();
 
     } else if (!loading) {
-      // User is not logged in and auth state is resolved
-      setProfileLoading(false);
-      setUserProfile(null);
+      // User is not logged in, redirect to auth page
+      router.replace('/auth');
     }
-  }, [user, loading, toast]);
+  }, [user, loading, toast, router]);
 
 
   const handleLogout = async () => {
     await auth.signOut();
     setUserProfile(null);
     toast({ title: "Dekonekte", description: "Ou dekonekte avèk siksè." });
-    router.push('/splash');
+    router.push('/auth');
   }
 
-  const handleLoginSuccess = () => {
-    // Redirect to home after successful login/signup.
-    // The useEffect will handle fetching the new profile.
-    router.push('/home');
-  }
   
-  if (loading || isProfileLoading) {
+  if (loading || isProfileLoading || !user) {
     return (
        <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -261,7 +250,7 @@ export default function AccountPage() {
 
   return (
     <div className="flex-1 p-4 md:p-6">
-      {user && userProfile ? (
+      {userProfile ? (
         userProfile.isVendor ? (
             <>
                 <MerchantDashboard userProfile={userProfile} onLogout={handleLogout}/>
@@ -273,20 +262,11 @@ export default function AccountPage() {
             <BuyerDashboard profile={userProfile} onLogout={handleLogout} />
         )
       ) : (
-         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)]">
-            <Link href="/" className="mb-8">
-                 <div className="relative w-[80px] h-[80px]">
-                    <NextImage
-                        src="https://picsum.photos/seed/logo/80/80"
-                        alt="Logo Deye Legliz"
-                        fill
-                        className="rounded-full object-contain"
-                        sizes="80px"
-                    />
-                </div>
-            </Link>
-            <AuthTabs onLoginSuccess={handleLoginSuccess} defaultTab={defaultTab} />
-         </div>
+        // This case should ideally not be hit if redirection is working correctly
+         <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <p className="text-muted-foreground">Ap finalize enskripsyon an...</p>
+        </div>
       )}
     </div>
   )

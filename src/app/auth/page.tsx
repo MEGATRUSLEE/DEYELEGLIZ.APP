@@ -2,15 +2,20 @@
 "use client"
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import NextImage from 'next/image';
+import { AuthTabs } from '@/components/auth-tabs';
 
-export default function AuthScreen() {
+export default function AuthPage() {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'login';
+
 
   useEffect(() => {
     // If user is already logged in, redirect them to the home page
@@ -18,6 +23,16 @@ export default function AuthScreen() {
       router.replace('/home');
     }
   }, [user, router]);
+
+  const handleLoginSuccess = () => {
+    // Check if the user is a new user to redirect to onboarding
+    const isNewUser = true; // This should be determined by your auth logic (e.g. from Firebase result)
+    if(isNewUser) {
+        router.push('/onboarding');
+    } else {
+        router.push('/home');
+    }
+  }
 
   if (loading || user) {
     return (
@@ -29,28 +44,21 @@ export default function AuthScreen() {
   }
 
   return (
-    <div className="flex flex-col h-screen p-6 animate-fade-in bg-background">
-      <div className="flex-1 flex flex-col justify-center text-center">
-         <h1 className="text-3xl font-bold text-foreground mb-4">
-          Byenveni sou Deye Legliz
-        </h1>
-        <p className="text-sm text-muted-foreground mb-10 max-w-xs mx-auto">
-          Antre nan platfòm ki konekte tout machann ak kliyan an Ayiti.
-        </p>
-        
-        <div className="space-y-4">
-          <Button asChild size="lg" className="w-full animate-slide-in-left shadow-lg">
-            <Link href="/account?tab=signup">Kreye kont</Link>
-          </Button>
-          <Button asChild size="lg" variant="secondary" className="w-full animate-slide-in-right shadow-lg">
-            <Link href="/account?tab=login">Mwen deja gen kont</Link>
-          </Button>
-        </div>
-      </div>
-      
-      <footer className="text-center text-xs text-muted-foreground pb-4">
-        <p>© 2025 Deye Legliz - Tout dwa rezève</p>
-      </footer>
+    <div className="flex flex-col h-screen p-4 md:p-6 bg-background">
+      <div className="flex flex-col items-center justify-center flex-1 min-h-0">
+            <Link href="/" className="mb-8">
+                 <div className="relative w-[80px] h-[80px]">
+                    <NextImage
+                        src="/assets/icons/deyelegliz-logo-192.png"
+                        alt="Logo Deye Legliz"
+                        fill
+                        className="rounded-full object-contain"
+                        sizes="80px"
+                    />
+                </div>
+            </Link>
+            <AuthTabs onLoginSuccess={handleLoginSuccess} defaultTab={defaultTab} />
+         </div>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { 
   auth, 
   db, 
@@ -110,6 +110,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { toast } = useToast()
     const searchParams = useSearchParams();
+    const router = useRouter();
     const userTypeParam = searchParams.get('userType') as 'buyer' | 'vendor' | null;
 
     const [step, setStep] = useState<'form' | 'otp'>('form');
@@ -208,8 +209,8 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
             const result = await confirmationResultRef.current.confirm(otp);
             const user = result.user;
             await finalizeAccountCreation(user, formData);
-            toast({ title: "Kont Kreye!", description: "Byenvini! Ou konekte kounye a." });
-            onLoginSuccess();
+            toast({ title: "Kont Kreye!", description: "Byenvini! Ou pral redireksyone kounye a." });
+            router.push('/onboarding');
         } catch (error) {
             console.error("OTP confirmation error:", error)
             toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
@@ -367,6 +368,7 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
 function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { toast } = useToast()
+    const router = useRouter();
     const [step, setStep] = useState<'phone' | 'otp'>('phone');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [otp, setOtp] = useState('');
@@ -435,7 +437,7 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         try {
             await confirmationResultRef.current.confirm(otp);
             toast({ title: "Konekte!", description: "Ou konekte avèk siksè." });
-            onLoginSuccess();
+            router.push('/home');
         } catch (error) {
              console.error("OTP confirmation error (login):", error);
              toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
@@ -487,11 +489,11 @@ export function AuthTabs({ onLoginSuccess, defaultTab = 'login' }: { onLoginSucc
   const [activeTab, setActiveTab] = useState(defaultTab);
   
   return (
-    <div className="p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
+    <div className="w-full max-w-md">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Konekte</TabsTrigger>
-                <TabsTrigger value="signup">Enskri</TabsTrigger>
+                <TabsTrigger value="signup">Kreye Kont</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
                 <Card>
@@ -507,7 +509,7 @@ export function AuthTabs({ onLoginSuccess, defaultTab = 'login' }: { onLoginSucc
             <TabsContent value="signup">
                 <Card>
                 <CardHeader>
-                    <CardTitle>Enskri</CardTitle>
+                    <CardTitle>Kreye Kont</CardTitle>
                     <CardDescription>Kreye yon kont pou kòmanse achte oswa vann.</CardDescription>
                 </CardHeader>
                 <CardContent>
