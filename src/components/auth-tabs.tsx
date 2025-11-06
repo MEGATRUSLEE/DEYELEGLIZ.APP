@@ -135,18 +135,24 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const selectedDepartment = form.watch("department") as Department | undefined;
     const userType = form.watch("userType");
     
-    // Ensure reCAPTCHA is created only once and only when needed
     useEffect(() => {
-        if (!recaptchaVerifierRef.current) {
-            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
-                'size': 'invisible',
-                'callback': () => {
-                    // reCAPTCHA solved
-                }
-            });
-            recaptchaVerifierRef.current.render();
+      if (step === 'form' && !recaptchaVerifierRef.current) {
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
+          'size': 'invisible',
+          'callback': () => { /* reCAPTCHA solved */ }
+        });
+        recaptchaVerifierRef.current = verifier;
+        verifier.render();
+      }
+      
+      // Cleanup function
+      return () => {
+        if (recaptchaVerifierRef.current) {
+          recaptchaVerifierRef.current.clear();
+          recaptchaVerifierRef.current = null;
         }
-    }, []);
+      };
+    }, [step]);
     
     const formatPhoneNumberForAuth = (phone: string) => {
         let cleaned = phone.replace(/\D/g, '');
@@ -239,14 +245,8 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
             console.error("Error during signInWithPhoneNumber:", error);
             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-            // Reset the invisible reCAPTCHA by clearing the instance
-            if (verifier) {
-                verifier.clear();
-            }
-            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
-                'size': 'invisible'
-            });
-            recaptchaVerifierRef.current.render();
+            // Let the cleanup effect handle the verifier reset
+            setStep('form'); 
         } finally {
              setIsSubmitting(false);
         }
@@ -380,18 +380,24 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         defaultValues: { phone: "" }
     });
 
-    // Ensure reCAPTCHA is created only once and only when needed
     useEffect(() => {
-        if (!recaptchaVerifierRef.current) {
-            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
+        if (step === 'phone' && !recaptchaVerifierRef.current) {
+            const verifier = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
                 'size': 'invisible',
-                'callback': () => {
-                   // reCAPTCHA solved
-                }
+                'callback': () => { /* reCAPTCHA solved */ }
             });
-            recaptchaVerifierRef.current.render();
+            recaptchaVerifierRef.current = verifier;
+            verifier.render();
         }
-    }, []);
+        
+        // Cleanup function
+        return () => {
+            if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.clear();
+                recaptchaVerifierRef.current = null;
+            }
+        };
+    }, [step]);
     
     const formatPhoneNumberForAuth = (phone: string) => {
         let cleaned = phone.replace(/\D/g, '');
@@ -419,12 +425,8 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
              console.error("Login error (send code):", error);
              toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-             // Reset the invisible reCAPTCHA
-             if (verifier) {
-                verifier.clear();
-             }
-             recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {'size': 'invisible'});
-             recaptchaVerifierRef.current.render();
+             // Let the cleanup effect handle the verifier reset
+             setStep('phone');
         } finally {
             setIsSubmitting(false);
         }
@@ -437,7 +439,7 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         try {
             await confirmationResultRef.current.confirm(otp);
             toast({ title: "Konekte!", description: "Ou konekte avèk siksè." });
-            router.push('/home');
+            onLoginSuccess();
         } catch (error) {
              console.error("OTP confirmation error (login):", error);
              toast({ variant: "destructive", title: "Erè", description: "Kòd la pa kòrèk, oswa li ekspire." });
@@ -521,3 +523,5 @@ export function AuthTabs({ onLoginSuccess, defaultTab = 'login' }: { onLoginSucc
     </div>
   )
 }
+
+    
