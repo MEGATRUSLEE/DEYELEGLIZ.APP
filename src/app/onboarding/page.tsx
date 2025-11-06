@@ -13,7 +13,7 @@ const onboardingData = {
   pages: [
     {
       title: "Konekte ak pwodui lokal, san entèmedyè",
-      description: "Deye Legliz se yon platfòm ki mete machann ak kliyan ansanm pou vann oswa achte pwodui lokal fasilman — lakay ou oswa nan diaspora.",
+      description: "Yon platfòm ki mete machann ak kliyan ansanm pou vann oswa achte pwodui lokal fasilman — lakay ou oswa nan diaspora.",
       image: "/assets/onboarding/local-market.png",
       buttonText: "Swivan"
     },
@@ -93,7 +93,7 @@ export default function OnboardingPage() {
                     key={index}
                     className={cn(
                         'h-2 w-2 rounded-full transition-all',
-                        currentPage === index ? 'w-6 bg-primary' : 'bg-gray-500'
+                        currentPage === index ? 'w-6' : ''
                     )}
                     style={{ backgroundColor: currentPage === index ? onboardingData.accentColor : '#FFFFFF55' }}
                 />

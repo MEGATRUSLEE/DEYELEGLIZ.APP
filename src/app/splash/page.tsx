@@ -20,13 +20,13 @@ export default function SplashPage() {
         const onboardingComplete = typeof window !== 'undefined' && localStorage.getItem('onboardingComplete') === 'true';
         
         if (!onboardingComplete) {
-            // First time visitor, redirect to onboarding.
+            // First time visitor, redirect to onboarding. This is the highest priority.
             setStatus('redirecting');
             router.replace('/onboarding');
             return;
         }
 
-        // It's a returning user, now we wait for Firebase auth state.
+        // It's a returning user, now we wait for Firebase auth state to resolve.
         if (!authLoading) {
             if (user) {
                 // User is logged in, show welcome and then redirect.
@@ -43,6 +43,8 @@ export default function SplashPage() {
     }, [authLoading, user, router]);
 
 
+    // This is the default state while we figure out where to go.
+    // It also handles the "redirecting" state to show a consistent loader.
     if (status === 'loading' || status === 'redirecting') {
         return (
             <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
@@ -66,7 +68,7 @@ export default function SplashPage() {
         );
     }
     
-    // This will only be rendered if status is 'auth_options'
+    // This will only be rendered if status is 'auth_options' after all checks are complete.
     return (
         <div className="flex flex-col items-center justify-center h-screen p-6 splash-bg text-white">
             <div className="flex flex-col items-center justify-center text-center space-y-8">
@@ -86,7 +88,7 @@ export default function SplashPage() {
                         <Link href="/account?tab=login">Konekte</Link>
                     </Button>
                     <Button asChild className="w-full h-[50px] rounded-full text-lg border border-white/40 bg-white/30 backdrop-blur-sm hover:bg-white/40">
-                        <Link href="/account?tab=signup">Enskri</Link>
+                        <Link href="/account?tab=signup">Kreye kont</Link>
                     </Button>
                 </div>
             </div>
