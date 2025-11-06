@@ -6,22 +6,25 @@
     "pages": [
       {
         "title": "Konekte ak pwodui lokal, san entèmedyè",
-        "description": "Yon platfòm ki mete machann ak kliyan ansanm pou vann oswa achte pwodui lokal fasilman — lakay ou oswa nan diaspora.",
-        "buttonText": "Swivan"
+        "description": "Deye Legliz se yon platfòm ki mete machann ak kliyan ansanm pou vann oswa achte pwodui lokal fasilman — lakay ou oswa nan diaspora.",
+        "image": "https://picsum.photos/seed/market/600/400"
       },
       {
         "title": "Fè biznis san baryè, lakay ak aletranje",
         "description": "Deye Legliz pèmèt tout Ayisyen, kèlkeswa kote yo ye, fè tranzaksyon dirèk pou pwodwi oswa sèvis lokal.",
-        "buttonText": "Swivan"
+        "image": "https://picsum.photos/seed/connect/600/400"
       },
       {
         "title": "Fè yon demann epi jwenn moun ki gen solisyon an",
         "description": "Ou bezwen yon pwodwi oswa yon sèvis? Fè yon demann, epi kominote Deye Legliz la ap reponn ou vit.",
-        "buttonText": "Kòmanse"
+        "image": "https://picsum.photos/seed/request/600/400"
       }
     ],
     "skipButton": {
       "text": "Sote"
+    },
+    "nextButton": {
+      "text": "Swivan"
     },
     "finishButton": {
       "text": "Kòmanse"
