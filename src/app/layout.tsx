@@ -3,8 +3,7 @@
 
 import "./globals.css"
 import { Poppins } from "next/font/google"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "@/components/bottom-nav"
 import { Toaster } from "@/components/ui/toaster"
@@ -23,33 +22,42 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const pathname = usePathname();
-  const [user, loading] = useAuthState(auth);
+  const pathname = usePathname()
+  const [user, loading] = useAuthState(auth)
 
-  // Define routes that do not require authentication
-  const publicRoutes = ['/', '/auth', '/onboarding'];
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+  // Define routes that are public and should not show the main nav
+  const publicRoutes = ["/auth", "/onboarding"]
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  
+  // The root page is special, it's a loading/redirect page, so no nav.
+  if (pathname === '/') {
+     return (
+        <html lang="ht">
+            <body className={cn("font-body antialiased", poppins.variable)}>
+                 {children}
+                 <Toaster />
+            </body>
+        </html>
+     )
+  }
 
-  // Determine if the bottom nav should be shown.
-  // Show it only on authenticated routes.
-  const showNav = user && !isPublicRoute;
-
-  // While checking auth status, show a global loader for protected routes
   if (loading && !isPublicRoute) {
     return (
-       <html lang="ht">
+      <html lang="ht">
         <body className={cn("font-body antialiased", poppins.variable)}>
-            <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4 bg-background">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            </div>
+          <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4 bg-background">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
         </body>
       </html>
     )
   }
+  
+  const showNav = user && !isPublicRoute;
 
   return (
     <html lang="ht">
-       <head>
+      <head>
         <title>Deye Legliz - Mache Lokal sou Telefòn ou</title>
         
         {/* SEO Meta Tags */}
@@ -60,24 +68,24 @@ export default function RootLayout({
         {/* Open Graph / Facebook */}
         <meta property="og:title" content="Deye Legliz - Mache Lokal sou Telefòn ou" />
         <meta property="og:description" content="Dekouvri ak achte pwodwi lokal dirèkteman sou telefòn ou." />
-        <meta property="og:image" content="https://deye-legliz-pwa-ywv3l.web.app/og-image.png" />
-        <meta property="og:url" content="https://deye-legliz-pwa-ywv3l.web.app" />
+        <meta property="og:image" content="/assets/og-image.png" />
+        <meta property="og:url" content="https://deyelegliz.com" />
         <meta property="og:type" content="website" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Deye Legliz" />
         <meta name="twitter:description" content="Achte pwodwi lokal dirèk sou mobil ou avèk Deye Legliz." />
-        <meta name="twitter:image" content="https://deye-legliz-pwa-ywv3l.web.app/twitter-image.png" />
+        <meta name="twitter:image" content="/assets/twitter-image.png" />
 
         {/* PWA */}
         <link rel="manifest" href="/manifest.webmanifest" />
-        <meta name="theme-color" content="#5D3FD3" />
+        <meta name="theme-color" content="#0A1E2B" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Deye Legliz" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-        <link rel="icon" href="/icon.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/assets/icons/deyelegliz-logo-192.png" />
+        <link rel="icon" href="/assets/icons/deyelegliz-logo-192.png" sizes="any" />
       </head>
       <body
         className={cn(
