@@ -1,0 +1,30 @@
+{
+  "onboarding": {
+    "backgroundColor": "#0A1E2B",
+    "textColor": "#FFFFFF",
+    "accentColor": "#D4A017",
+    "pages": [
+      {
+        "title": "Konekte ak pwodui lokal, san entèmedyè",
+        "description": "Deye Legliz se yon platfòm ki mete machann ak kliyan ansanm pou vann oswa achte pwodui lokal fasilman — lakay ou oswa nan diaspora.",
+        "buttonText": "Swivan"
+      },
+      {
+        "title": "Fè biznis san baryè, lakay ak aletranje",
+        "description": "Deye Legliz pèmèt tout Ayisyen, kèlkeswa kote yo ye, fè tranzaksyon dirèk pou pwodwi oswa sèvis lokal.",
+        "buttonText": "Swivan"
+      },
+      {
+        "title": "Fè yon demann epi jwenn moun ki gen solisyon an",
+        "description": "Ou bezwen yon pwodwi oswa yon sèvis? Fè yon demann, epi kominote Deye Legliz la ap reponn ou vit.",
+        "buttonText": "Kòmanse"
+      }
+    ],
+    "skipButton": {
+      "text": "Sote"
+    },
+    "finishButton": {
+      "text": "Kòmanse"
+    }
+  }
+}
