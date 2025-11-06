@@ -10,7 +10,6 @@ import { Loader2, LogOut, CheckCircle2, AlertCircle, Clock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { AuthTabs } from "@/components/auth-tabs"
 import { MerchantDashboard } from "@/components/merchant-dashboard"
 import type { Request } from "@/app/requests/page"
 import { UserRequestCard } from "@/components/user-request-card"
@@ -213,6 +212,9 @@ export default function AccountPage() {
           const profileData = { uid: docSnap.id, ...docSnap.data() } as UserProfile;
           setUserProfile(profileData);
         } else {
+             // This case might happen if the user record exists in Auth but not Firestore
+             // This indicates a problem with signup, we'll treat them as logged out
+             // and redirect them, which should not happen in a stable app.
              setUserProfile(null);
         }
         setProfileLoading(false);
@@ -225,7 +227,8 @@ export default function AccountPage() {
       return () => unsubscribeUser();
 
     } else if (!loading) {
-      // User is not logged in, redirect to auth page
+      // User is not logged in, and auth state is resolved.
+      // The main layout should handle redirection, but as a fallback:
       router.replace('/auth');
     }
   }, [user, loading, toast, router]);
@@ -233,13 +236,13 @@ export default function AccountPage() {
 
   const handleLogout = async () => {
     await auth.signOut();
-    setUserProfile(null);
+    setUserProfile(null); // Clear local profile state
     toast({ title: "Dekonekte", description: "Ou dekonekte avèk siksè." });
-    router.push('/auth');
+    router.push('/'); // Go to root, which will redirect to /auth
   }
-
   
-  if (loading || isProfileLoading || !user) {
+  // This shows a loader while we are confirming auth state and fetching the profile
+  if (loading || isProfileLoading || !userProfile) {
     return (
        <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -248,25 +251,18 @@ export default function AccountPage() {
     )
   }
 
+  // Once profile is loaded, show the correct dashboard
   return (
     <div className="flex-1 p-4 md:p-6">
-      {userProfile ? (
-        userProfile.isVendor ? (
-            <>
-                <MerchantDashboard userProfile={userProfile} onLogout={handleLogout}/>
-                <div className="mt-6">
-                  <SubscriptionStatus profile={userProfile} />
-                </div>
-            </>
-        ) : (
-            <BuyerDashboard profile={userProfile} onLogout={handleLogout} />
-        )
+      {userProfile.isVendor ? (
+        <>
+            <MerchantDashboard userProfile={userProfile} onLogout={handleLogout}/>
+            <div className="mt-6">
+              <SubscriptionStatus profile={userProfile} />
+            </div>
+        </>
       ) : (
-        // This case should ideally not be hit if redirection is working correctly
-         <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-4">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-muted-foreground">Ap finalize enskripsyon an...</p>
-        </div>
+        <BuyerDashboard profile={userProfile} onLogout={handleLogout} />
       )}
     </div>
   )

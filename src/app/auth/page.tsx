@@ -25,13 +25,10 @@ export default function AuthPage() {
   }, [user, router]);
 
   const handleLoginSuccess = () => {
-    // Check if the user is a new user to redirect to onboarding
-    const isNewUser = true; // This should be determined by your auth logic (e.g. from Firebase result)
-    if(isNewUser) {
-        router.push('/onboarding');
-    } else {
-        router.push('/home');
-    }
+    // The signup form will redirect to '/onboarding' for new users.
+    // The login form will redirect to '/home'.
+    // This function is a fallback and main router for successful logins.
+    router.push('/home');
   }
 
   if (loading || user) {
