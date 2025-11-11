@@ -135,24 +135,21 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const selectedDepartment = form.watch("department") as Department | undefined;
     const userType = form.watch("userType");
     
-    useEffect(() => {
-      if (step === 'form' && !recaptchaVerifierRef.current) {
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
-          'size': 'invisible',
-          'callback': () => { /* reCAPTCHA solved */ }
-        });
-        recaptchaVerifierRef.current = verifier;
-        verifier.render();
-      }
-      
-      // Cleanup function
-      return () => {
-        if (recaptchaVerifierRef.current) {
-          recaptchaVerifierRef.current.clear();
-          recaptchaVerifierRef.current = null;
+    const setupRecaptcha = useCallback(() => {
+        if (!recaptchaVerifierRef.current) {
+            const verifier = new RecaptchaVerifier(auth, 'recaptcha-container-signup', {
+                'size': 'invisible',
+                'callback': () => { /* reCAPTCHA solved */ }
+            });
+            recaptchaVerifierRef.current = verifier;
         }
-      };
-    }, [step]);
+    }, []);
+
+    useEffect(() => {
+        if (step === 'form') {
+            setupRecaptcha();
+        }
+    }, [step, setupRecaptcha]);
     
     const formatPhoneNumberForAuth = (phone: string) => {
         let cleaned = phone.replace(/\D/g, '');
@@ -228,13 +225,12 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const onCaptchaVerify = async (data: SignupFormValues) => {
         setIsSubmitting(true);
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
-        const verifier = recaptchaVerifierRef.current;
-
-        if (!verifier) {
-            toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa t' kapab inisyalize. Tanpri rafrechi paj la." });
-            setIsSubmitting(false);
-            return;
+        
+        // Ensure verifier is ready
+        if (!recaptchaVerifierRef.current) {
+             setupRecaptcha();
         }
+        const verifier = recaptchaVerifierRef.current!;
 
         try {
             const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
@@ -245,8 +241,14 @@ function SignupForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
             console.error("Error during signInWithPhoneNumber:", error);
             toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-            // Let the cleanup effect handle the verifier reset
-            setStep('form'); 
+            // Reset recaptcha
+            if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.render().then((widgetId) => {
+                   if (typeof grecaptcha !== 'undefined') {
+                       grecaptcha.reset(widgetId);
+                   }
+                });
+            }
         } finally {
              setIsSubmitting(false);
         }
@@ -380,24 +382,21 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         defaultValues: { phone: "" }
     });
 
-    useEffect(() => {
-        if (step === 'phone' && !recaptchaVerifierRef.current) {
+    const setupRecaptcha = useCallback(() => {
+        if (!recaptchaVerifierRef.current) {
             const verifier = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
                 'size': 'invisible',
                 'callback': () => { /* reCAPTCHA solved */ }
             });
             recaptchaVerifierRef.current = verifier;
-            verifier.render();
         }
-        
-        // Cleanup function
-        return () => {
-            if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.clear();
-                recaptchaVerifierRef.current = null;
-            }
-        };
-    }, [step]);
+    }, []);
+
+    useEffect(() => {
+        if (step === 'phone') {
+            setupRecaptcha();
+        }
+    }, [step, setupRecaptcha]);
     
     const formatPhoneNumberForAuth = (phone: string) => {
         let cleaned = phone.replace(/\D/g, '');
@@ -409,13 +408,11 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const handleSendCode = async (data: LoginFormValues) => {
         setIsSubmitting(true);
         const phoneNumber = formatPhoneNumberForAuth(data.phone);
-        const verifier = recaptchaVerifierRef.current;
-        
-        if (!verifier) {
-            toast({ variant: "destructive", title: "Erè", description: "reCAPTCHA pa t' kapab inisyalize. Tanpri rafrechi paj la." });
-            setIsSubmitting(false);
-            return;
+
+        if (!recaptchaVerifierRef.current) {
+            setupRecaptcha();
         }
+        const verifier = recaptchaVerifierRef.current!;
 
         try {
             const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
@@ -425,8 +422,13 @@ function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         } catch (error) {
              console.error("Login error (send code):", error);
              toast({ variant: "destructive", title: "Erè", description: "Nou pa t kapab voye kòd la. Verifye nimewo a epi eseye ankò."});
-             // Let the cleanup effect handle the verifier reset
-             setStep('phone');
+             if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.render().then((widgetId) => {
+                    if (typeof grecaptcha !== 'undefined') {
+                       grecaptcha.reset(widgetId);
+                    }
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -523,5 +525,3 @@ export function AuthTabs({ onLoginSuccess, defaultTab = 'login' }: { onLoginSucc
     </div>
   )
 }
-
-    
