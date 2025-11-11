@@ -11,7 +11,8 @@ import {
   updateProfile,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  type User
+  type User,
+  connectAuthEmulator // Import the emulator function
 } from "firebase/auth";
 import { 
   getFirestore, 
@@ -60,6 +61,13 @@ const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : get
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
 const storage: FirebaseStorage = getStorage(app);
+
+// Connect to Firebase emulators in development mode
+// This is the standard and recommended way to avoid network issues and API key restrictions during development
+if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  console.log("Connecting to Firebase Auth Emulator");
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+}
 
 
 export { 
